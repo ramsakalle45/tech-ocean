@@ -1,0 +1,194 @@
+/**
+ * Layer 6 — motion and print.
+ *
+ * The page turn uses the View Transitions API: zero bytes of JavaScript,
+ * snapshots taken by the browser, composited on the GPU.
+ * Where the API is missing, a short fade keeps navigation feeling alive.
+ */
+
+/* ============================================================
+   The page turn
+   ============================================================ */
+.theme-doc-markdown {
+  view-transition-name: page;
+}
+
+/* The chrome (navbar, sidebar, TOC) swaps instantly — only the page turns */
+::view-transition-group(root) {
+  animation: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-group(page) {
+  transform-origin: left center;
+}
+
+::view-transition-old(page) {
+  transform-origin: left center;
+  animation: turn-out 460ms cubic-bezier(0.3, 0.1, 0.2, 1) both;
+  z-index: 2;
+}
+
+::view-transition-new(page) {
+  transform-origin: left center;
+  animation: turn-in 380ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  z-index: 1;
+}
+
+@keyframes turn-out {
+  from {
+    transform: perspective(2400px) rotateY(0deg) translateX(0);
+    filter: brightness(1);
+  }
+  to {
+    transform: perspective(2400px) rotateY(-88deg) translateX(-4%);
+    filter: brightness(0.72);
+  }
+}
+
+@keyframes turn-in {
+  from {
+    transform: perspective(2400px) rotateY(16deg) translateX(3%);
+    filter: brightness(0.88);
+  }
+  to {
+    transform: perspective(2400px) rotateY(0deg) translateX(0);
+    filter: brightness(1);
+  }
+}
+
+/* ============================================================
+   Fallback: the same motion, driven by classes on the article
+   ============================================================ */
+.theme-doc-markdown.page-turn-out {
+  transform-origin: left center;
+  animation: turn-out 460ms cubic-bezier(0.3, 0.1, 0.2, 1) both;
+  will-change: transform, filter;
+}
+
+.theme-doc-markdown.page-turn-in {
+  transform-origin: left center;
+  animation: turn-in 380ms cubic-bezier(0.2, 0.7, 0.3, 1) both;
+  will-change: transform, filter;
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.theme-doc-markdown.page-fade-in {
+  animation: page-fade-in 220ms ease-out both;
+}
+
+/* ============================================================
+   Reduced motion — honour the user's system setting
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  ::view-transition-old(page),
+  ::view-transition-new(page),
+  ::view-transition-group(page),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  .page-fade-in .theme-doc-markdown,
+  .theme-doc-markdown.page-fade-in,
+  .theme-doc-markdown.page-turn-out,
+  .theme-doc-markdown.page-turn-in {
+    animation: none !important;
+  }
+
+  .pagination-nav__link {
+    transition: none;
+  }
+
+  .pagination-nav__link:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   Print — a reader takes the book away on paper
+   ============================================================ */
+@media print {
+  :root {
+    --paper: #fff;
+    --desk: #fff;
+    --ink: #000;
+    --ink-soft: #333;
+    --rule: #999;
+  }
+
+  .navbar,
+  .theme-doc-sidebar-container,
+  .theme-doc-toc-desktop,
+  .theme-doc-toc-mobile,
+  .pagination-nav,
+  .footer,
+  .theme-doc-footer,
+  .draft-notice {
+    display: none !important;
+  }
+
+  .theme-doc-markdown {
+    max-width: none;
+    padding: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .theme-doc-markdown::before,
+  .theme-doc-markdown::after {
+    display: none;
+  }
+
+  .theme-doc-markdown p {
+    text-align: left;
+    hyphens: manual;
+  }
+
+  /* Keep code, tables and callouts from splitting across pages */
+  .theme-doc-markdown pre,
+  .theme-doc-markdown table,
+  .theme-doc-markdown .callout,
+  .theme-doc-markdown .figure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .theme-doc-markdown h1,
+  .theme-doc-markdown h2,
+  .theme-doc-markdown h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* Show where a link points */
+  .theme-doc-markdown a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.85em;
+    color: #555;
+    word-break: break-all;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}

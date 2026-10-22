@@ -1,0 +1,258 @@
+/**
+ * Layer 4 — components.
+ *
+ * Shared by every module. These are the only styles the MDX content can
+ * depend on, so they live in one place rather than in each page.
+ */
+
+/* ============================================================
+   Callout — a marginal note in the book
+   ============================================================ */
+.callout {
+  --callout-color: var(--gold);
+  position: relative;
+  margin: 1.8em 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--callout-color);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--callout-color) 8%, transparent);
+  color: var(--ink);
+}
+
+.callout__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  line-height: 1.2;
+  color: var(--callout-color);
+  margin-bottom: 0.4rem;
+}
+
+.callout__title::before {
+  content: '✎';
+  font-size: 0.85em;
+}
+
+.callout > :last-child {
+  margin-bottom: 0;
+}
+
+.callout--note {
+  --callout-color: var(--ink-soft);
+}
+
+.callout--note .callout__title::before {
+  content: '¶';
+}
+
+.callout--tip {
+  --callout-color: #4f7a3f;
+}
+
+[data-theme='dark'] .callout--tip {
+  --callout-color: #8fbb77;
+}
+
+.callout--tip .callout__title::before {
+  content: '❋';
+}
+
+.callout--warning {
+  --callout-color: var(--accent);
+}
+
+.callout--warning .callout__title::before {
+  content: '⚠';
+}
+
+.callout--interview {
+  --callout-color: var(--gold);
+  border-style: double;
+  border-width: 3px;
+  background: color-mix(in srgb, var(--gold) 10%, transparent);
+}
+
+.callout--interview .callout__title {
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.callout--interview .callout__title::before {
+  content: '❦';
+  font-size: 0.9em;
+}
+
+/* ============================================================
+   Drop cap
+   ============================================================ */
+.dropcap {
+  float: left;
+  font-family: var(--font-ornament);
+  font-size: 3.6em;
+  line-height: 0.78;
+  padding: 0.06em 0.09em 0 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@supports (initial-letter: 3) {
+  .dropcap {
+    float: none;
+    initial-letter: 3 3;
+    margin-right: 0.08em;
+  }
+}
+
+/* ============================================================
+   Chapter header
+   ============================================================ */
+.chapter-header {
+  text-align: center;
+  margin: 0 0 2.2rem;
+  color: var(--accent);
+}
+
+.chapter-header__eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  color: var(--gold);
+  margin-bottom: 0.5rem;
+}
+
+.chapter-header__number {
+  display: block;
+  font-family: var(--font-ornament);
+  font-size: var(--step-4);
+  line-height: 1.05;
+  letter-spacing: 0.08em;
+}
+
+.chapter-header__title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  color: var(--ink);
+  margin-top: 0.4rem;
+}
+
+.chapter-header__rule {
+  display: block;
+  width: 7rem;
+  height: 3px;
+  margin: 1rem auto 0;
+  border-top: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+}
+
+/* ============================================================
+   Figure — a printed plate
+   ============================================================ */
+.figure {
+  margin: 1.8em 0;
+  text-align: center;
+}
+
+.figure__image {
+  display: inline-block;
+  max-width: 100%;
+  padding: 7px;
+  background: var(--plate);
+  border: 1px solid var(--rule);
+  box-shadow: var(--lift-1);
+}
+
+.figure__image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.figure__caption {
+  font-family: var(--font-hand);
+  font-size: var(--step-1);
+  color: var(--ink-soft);
+  margin-top: 0.5rem;
+  line-height: 1.3;
+}
+
+/* ============================================================
+   Code
+   ============================================================ */
+.theme-doc-markdown pre {
+  background: var(--plate) !important;
+  color: var(--plate-ink);
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius);
+  box-shadow: inset 0 0 0 3px var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  line-height: 1.6;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.theme-doc-markdown pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+  white-space: pre;
+  word-break: normal;
+}
+
+/* Docusaurus code block with a title bar */
+.theme-code-block {
+  margin: 1.6em 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--plate);
+}
+
+.theme-code-block .theme-code-block__title {
+  background: color-mix(in srgb, var(--gold) 14%, transparent);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  padding: 0.35rem 0.8rem;
+}
+
+.theme-code-block pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ============================================================
+   Draft notice — used on unfinished chapters
+   ============================================================ */
+.draft-notice {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  margin: 0 0 2rem;
+  padding: 0.8rem 1rem;
+  border: 1px dashed var(--gold);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--gold) 9%, transparent);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.draft-notice__label {
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--accent);
+  white-space: nowrap;
+}

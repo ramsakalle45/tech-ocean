@@ -1,0 +1,186 @@
+/**
+ * Layer 2 — typography.
+ *
+ * The body text is the product. Everything here serves readability:
+ * a capped measure, justified only where it helps, and ornaments that
+ * never cost a line of legibility.
+ */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+  font-variant-numeric: oldstyle-nums proportional-nums;
+  font-kerning: normal;
+  font-feature-settings: 'liga' 1, 'kern' 1, 'onum' 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Prose ---- */
+.theme-doc-markdown {
+  color: var(--ink);
+  font-size: var(--step-0);
+  line-height: var(--leading-body);
+}
+
+.theme-doc-markdown p {
+  margin: 0 0 1.1em;
+  text-wrap: pretty;
+}
+
+.theme-doc-markdown > p:first-of-type {
+  text-indent: 0;
+}
+
+/* Headings */
+.theme-doc-markdown h1,
+.theme-doc-markdown h2,
+.theme-doc-markdown h3,
+.theme-doc-markdown h4,
+.theme-doc-markdown h5,
+.theme-doc-markdown h6 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+  margin: 1.9em 0 0.7em;
+}
+
+.theme-doc-markdown h1 {
+  font-size: var(--step-4);
+  text-align: center;
+  margin-top: 0.4em;
+  padding-bottom: 0.55em;
+  border-bottom: 3px double var(--gold);
+}
+
+.theme-doc-markdown h2 {
+  font-size: var(--step-3);
+  color: var(--accent);
+}
+
+.theme-doc-markdown h3 {
+  font-size: var(--step-2);
+}
+
+.theme-doc-markdown h4 {
+  font-size: var(--step-1);
+}
+
+.theme-doc-markdown h5,
+.theme-doc-markdown h6 {
+  font-size: var(--step-0);
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-soft);
+}
+
+/* Ornament before second-level headings */
+.theme-doc-markdown h2::before {
+  content: '❦ ';
+  color: var(--gold);
+  font-size: 0.62em;
+  vertical-align: 0.12em;
+  margin-right: 0.25em;
+}
+
+/* ---- Lists ---- */
+.theme-doc-markdown ul,
+.theme-doc-markdown ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.5em;
+}
+
+.theme-doc-markdown li {
+  margin-bottom: 0.4em;
+}
+
+.theme-doc-markdown li::marker {
+  color: var(--gold);
+}
+
+/* ---- Blockquote — a quoted passage ---- */
+.theme-doc-markdown blockquote {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.25em;
+  border-left: 3px solid var(--gold);
+  background: rgb(176 141 60 / 0.07);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.theme-doc-markdown blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---- Rules — a printer's ornament, not a hairline ---- */
+.theme-doc-markdown hr {
+  height: auto;
+  margin: 2.4em auto;
+  border: 0;
+  text-align: center;
+  background: none;
+}
+
+.theme-doc-markdown hr::before {
+  content: '❧ ❦ ❧';
+  color: var(--gold);
+  font-size: var(--step-1);
+  letter-spacing: 0.4em;
+}
+
+/* ---- Inline code ---- */
+.theme-doc-markdown code {
+  font-family: var(--font-mono);
+  background: rgb(176 141 60 / 0.12);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.05em 0.32em;
+  font-size: 0.9em;
+  word-break: break-word;
+}
+
+/* ---- Links ---- */
+.theme-doc-markdown a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+.theme-doc-markdown a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* ---- Tables ---- */
+.theme-doc-markdown table {
+  display: table;
+  width: 100%;
+  margin: 1.6em 0;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.theme-doc-markdown table th {
+  font-family: var(--font-display);
+  text-align: left;
+  font-size: var(--step--1);
+  color: var(--accent);
+  border-bottom: 2px solid var(--rule);
+  padding: 0.5em 0.7em;
+}
+
+.theme-doc-markdown td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5em 0.7em;
+  vertical-align: top;
+}
+
+/* ---- Small print ---- */
+.theme-doc-markdown small,
+.theme-doc-markdown .text--sm {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}

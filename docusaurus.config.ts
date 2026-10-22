@@ -46,7 +46,16 @@ const config: Config = {
         // Content lives in docs/ only; there is no blog.
         blog: false,
         theme: {
-          customCss: './src/css/book-theme.css',
+          // Order matters: tokens → typography → page → components →
+          // responsive → motion. Last wins on equal specificity.
+          customCss: [
+            './src/css/theme/tokens.css',
+            './src/css/theme/typography.css',
+            './src/css/theme/page.css',
+            './src/css/theme/components.css',
+            './src/css/theme/responsive.css',
+            './src/css/theme/motion.css',
+          ],
         },
         sitemap: {
           changefreq: 'weekly',

@@ -1,0 +1,183 @@
+/**
+ * Layer 5 — responsive.
+ *
+ * The fluid type scale in tokens.css handles most of the range. These
+ * breakpoints handle the things that cannot scale: frames, orientation
+ * and touch targets.
+ */
+
+/* ============================================================
+   Phone  (≤ 640px)
+   ============================================================ */
+@media (max-width: 640px) {
+  :root {
+    --frame-edge: 0px;
+    --measure: 100%;
+  }
+
+  /* The frame is the first thing to go — a phone screen is the page. */
+  .theme-doc-markdown {
+    box-shadow: var(--lift-1);
+    border-radius: 0;
+  }
+
+  .theme-doc-markdown::before {
+    width: 18px;
+  }
+
+  .theme-doc-markdown::after {
+    display: none;
+  }
+
+  .theme-doc-markdown h1 {
+    font-size: var(--step-3);
+  }
+
+  /* Ragged right, never justified */
+  .theme-doc-markdown p {
+    text-align: left;
+    hyphens: manual;
+  }
+
+  /* A drop cap needs room to sit beside three lines of text */
+  .dropcap {
+    font-size: 2.9em;
+  }
+
+  /* Tables scroll rather than squash */
+  .theme-doc-markdown table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Paging is a primary action on a phone */
+  .pagination-nav {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pagination-nav__link {
+    width: 100%;
+    padding: 1rem 1.1rem;
+    min-height: 3.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .pagination-nav__link--next {
+    text-align: left;
+  }
+
+  .pagination-nav__link--next::after {
+    right: 0;
+  }
+
+  /* Callouts read as blocks, not notes */
+  .callout {
+    padding: 0.85rem 1rem;
+    transform: none !important;
+  }
+
+  .callout__title {
+    font-size: var(--step-0);
+  }
+
+  /* Comfortable touch targets */
+  .menu__link,
+  .pagination-nav__link,
+  .theme-doc-markdown a {
+    padding-block: 0.25rem;
+  }
+
+  .footer {
+    padding-bottom: 4rem;
+  }
+}
+
+/* ============================================================
+   Tablet  (641 – 996px)
+   ============================================================ */
+@media (min-width: 641px) and (max-width: 996px) {
+  .theme-doc-markdown {
+    box-shadow:
+      0 0 0 1px var(--rule),
+      0 0 0 3px var(--paper-edge),
+      0 12px 30px -14px rgb(43 33 24 / 0.35);
+  }
+
+  /* Still ragged right: not enough measure to justify */
+  .theme-doc-markdown p {
+    text-align: left;
+    hyphens: manual;
+  }
+}
+
+/* ============================================================
+   Laptop and up  (≥ 997px)
+   ============================================================ */
+@media (min-width: 997px) {
+  /* Justify only where the measure is wide enough to look right */
+  .theme-doc-markdown p {
+    text-align: justify;
+    hyphens: auto;
+  }
+
+  /* Never justify these — justification exposes their short last lines */
+  .theme-doc-markdown li p,
+  .theme-doc-markdown blockquote p,
+  .theme-doc-markdown table p,
+  .theme-doc-markdown .callout p,
+  .theme-doc-markdown h1,
+  .theme-doc-markdown h2,
+  .theme-doc-markdown h3 {
+    text-align: left;
+    hyphens: manual;
+  }
+
+  /* A marginal note sits slightly askew */
+  .callout {
+    transform: rotate(-0.22deg);
+  }
+}
+
+/* ============================================================
+   Wide desktop  (≥ 1440px)
+   ============================================================ */
+@media (min-width: 1440px) {
+  :root {
+    --measure: 70ch;
+    --page-pad-y: 3.5rem;
+  }
+
+  .theme-doc-markdown {
+    --page-pad-x: 4rem;
+  }
+
+  .theme-doc-markdown h1 {
+    font-size: var(--step-5);
+  }
+}
+
+/* ============================================================
+   Landscape phones — vertical space is the scarce resource
+   ============================================================ */
+@media (max-height: 480px) and (orientation: landscape) {
+  .theme-doc-markdown {
+    --page-pad-y: 1.25rem;
+  }
+}
+
+/* ============================================================
+   Touch devices — no hover-dependent affordances
+   ============================================================ */
+@media (hover: none) {
+  .pagination-nav__link:hover {
+    transform: none;
+  }
+
+  .theme-doc-markdown a {
+    text-decoration-thickness: 2px;
+  }
+}

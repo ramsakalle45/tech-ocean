@@ -1,0 +1,102 @@
+/**
+ * Layer 1 — tokens.
+ *
+ * Fonts first: @import must precede every other rule in a stylesheet.
+ * Latin subsets only — the full @fontsource files ship 25 woff2 per family
+ * (cyrillic, greek, vietnamese…) and this book is English.
+ */
+
+@import '@fontsource/eb-garamond/latin-400.css';
+@import '@fontsource/eb-garamond/latin-400-italic.css';
+@import '@fontsource/eb-garamond/latin-600.css';
+@import '@fontsource/playfair-display-sc/latin-700.css';
+@import '@fontsource/cinzel-decorative/latin-700.css';
+@import '@fontsource/caveat/latin-500.css';
+@import '@fontsource/courier-prime/latin-400.css';
+
+:root {
+  /* ---- Palette: light (day) ---- */
+  --paper: #f4ecd8; /* the page */
+  --paper-edge: #e6d9b8; /* page block edges */
+  --desk: #e3d5b4; /* the surface the book sits on */
+  --ink: #2b2118; /* warm black */
+  --ink-soft: #5a4a3a; /* secondary text — 8:1 on paper */
+  --accent: #8b2f1f; /* faded red — 7:1 on paper */
+  --gold: #b08d3c; /* ornaments and rules only — 2.6:1, never text */
+  --rule: #cdbb94;
+  --plate: #fbf6e8; /* image plates and code */
+  --plate-ink: #3a2d20;
+
+  /* ---- Typography ---- */
+  --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-display: 'Playfair Display SC', Georgia, serif;
+  --font-ornament: 'Cinzel Decorative', Georgia, serif;
+  --font-hand: 'Caveat', 'Bradley Hand', cursive;
+  --font-mono: 'Courier Prime', ui-monospace, 'SFMono-Regular', monospace;
+
+  /* Fluid scale — interpolates between sizes instead of snapping at breakpoints */
+  --step--2: clamp(0.80rem, 0.78rem + 0.10vw, 0.88rem);
+  --step--1: clamp(0.92rem, 0.89rem + 0.16vw, 1.02rem);
+  --step-0: clamp(1.06rem, 1.02rem + 0.24vw, 1.22rem);
+  --step-1: clamp(1.24rem, 1.18rem + 0.34vw, 1.44rem);
+  --step-2: clamp(1.46rem, 1.34rem + 0.62vw, 1.82rem);
+  --step-3: clamp(1.72rem, 1.50rem + 1.05vw, 2.32rem);
+  --step-4: clamp(2.02rem, 1.66rem + 1.60vw, 2.98rem);
+  --step-5: clamp(2.38rem, 1.80rem + 2.40vw, 3.86rem);
+
+  --leading-body: 1.72;
+  --leading-tight: 1.25;
+
+  /* ---- Layout ---- */
+  --measure: 68ch; /* comfortable line length for prose */
+  --page-pad-x: clamp(1.15rem, 3.6vw, 3.25rem);
+  --page-pad-y: clamp(1.5rem, 3.4vw, 3rem);
+  --page-width: calc(var(--measure) + 2 * var(--page-pad-x));
+  --frame-edge: 7px; /* thickness of the page block */
+
+  --radius: 2px;
+
+  /* ---- Elevation ---- */
+  --lift-1: 0 1px 2px rgb(43 33 24 / 0.10);
+  --lift-2: 0 0 0 1px var(--rule), 0 0 0 var(--frame-edge) var(--paper-edge),
+    0 18px 45px -12px rgb(43 33 24 / 0.35);
+
+  /* ---- Docusaurus (Infima) bindings ---- */
+  --ifm-font-family-base: var(--font-body);
+  --ifm-font-family-monospace: var(--font-mono);
+  --ifm-heading-font-family: var(--font-display);
+  --ifm-font-color-base: var(--ink);
+  --ifm-background-color: var(--desk);
+  --ifm-color-primary: var(--accent);
+  --ifm-navbar-height: 3.5rem;
+  --ifm-navbar-padding-horizontal: 1rem;
+  --ifm-link-color: var(--accent);
+  --ifm-toc-border-color: var(--rule);
+  --ifm-toc-width: 15rem;
+  --ifm-font-size-base: 100%;
+  --ifm-code-font-size: 92%;
+  --ifm-heading-font-weight: 700;
+  --ifm-line-height-base: var(--leading-body);
+}
+
+/* "Candlelight" — the same book, read by lamplight */
+[data-theme='dark'] {
+  --paper: #1f1812;
+  --paper-edge: #2a2118;
+  --desk: #15100b;
+  --ink: #e8dcc2;
+  --ink-soft: #b9a98a;
+  --accent: #d4694f;
+  --gold: #d1a954;
+  --rule: #3d3022;
+  --plate: #241c15;
+  --plate-ink: #e8dcc2;
+
+  --lift-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --lift-2: 0 0 0 1px var(--rule), 0 0 0 var(--frame-edge) var(--paper-edge),
+    0 18px 45px -12px rgb(0 0 0 / 0.6);
+
+  --ifm-background-color: var(--desk);
+  --ifm-color-primary: var(--accent);
+  --ifm-font-color-base: var(--ink);
+}
