@@ -1,0 +1,63 @@
+/**
+ * Ram's Dev Ocean — old-book theme.
+ *
+ * Phase 1: fonts + palette tokens only. This file proves the self-hosted
+ * @fontsource faces resolve at build time and gives Phase 2 a stable base.
+ */
+
+/* ---- Self-hosted fonts (no external network requests) ---- */
+@import '@fontsource/eb-garamond/400.css';
+@import '@fontsource/eb-garamond/400-italic.css';
+@import '@fontsource/eb-garamond/600.css';
+@import '@fontsource/playfair-display-sc/700.css';
+@import '@fontsource/cinzel-decorative/700.css';
+@import '@fontsource/caveat/500.css';
+@import '@fontsource/courier-prime/400.css';
+
+:root {
+  --paper: #f4ecd8; /* aged paper */
+  --paper-edge: #e6d9b8;
+  --ink: #2b2118; /* warm black */
+  --ink-soft: #5a4a3a;
+  --accent: #8b2f1f; /* faded red, chapter marks */
+  --gold: #b08d3c; /* ornaments */
+  --rule: #cdbb94;
+
+  --ifm-font-family-base: 'EB Garamond', Georgia, serif;
+  --ifm-font-family-monospace: 'Courier Prime', ui-monospace, monospace;
+  --ifm-heading-font-family: 'Playfair Display SC', Georgia, serif;
+  --ifm-font-size-base: 120%;
+  --ifm-line-height-base: 1.75;
+  --ifm-color-primary: var(--accent);
+  --ifm-background-color: var(--paper);
+  --ifm-font-color-base: var(--ink);
+  --ifm-code-font-size: 90%;
+}
+
+/* "Candlelight" mode */
+[data-theme='dark'] {
+  --paper: #1f1812;
+  --paper-edge: #2a2118;
+  --ink: #e8dcc2;
+  --ink-soft: #b9a98a;
+  --accent: #d4694f;
+  --gold: #d1a954;
+  --rule: #3d3022;
+
+  --ifm-color-primary: var(--accent);
+  --ifm-background-color: var(--paper);
+  --ifm-font-color-base: var(--ink);
+}
+
+/* Long identifiers, URLs and code tokens must not blow out the column on mobile. */
+.theme-doc-markdown {
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 640px) {
+  /* Justified text with hyphenation overflows narrow screens. Leave it ragged. */
+  .theme-doc-markdown p {
+    text-align: left;
+    hyphens: manual;
+  }
+}

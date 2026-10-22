@@ -1,23 +1,75 @@
-/**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
- */
-
-.heroBanner {
-  padding: 4rem 0;
+.cover {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 6rem 1.5rem 4rem;
   text-align: center;
-  position: relative;
-  overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.kicker {
+  font-family: 'Cinzel Decorative', serif;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--gold);
+  margin-bottom: 1rem;
 }
 
-.buttons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.title {
+  font-family: 'Playfair Display SC', serif;
+  color: var(--accent);
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  line-height: 1.1;
+  margin: 0 0 1.5rem;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  color: var(--ink-soft);
+  max-width: 34rem;
+  margin: 0 auto 2.5rem;
+}
+
+.cta {
+  display: inline-block;
+  border: 1px solid var(--gold);
+  padding: 0.6rem 2rem;
+  font-family: 'Playfair Display SC', serif;
+  color: var(--accent);
+}
+
+.cta:hover {
+  background: var(--paper-edge);
+  text-decoration: none;
+}
+
+.subjects {
+  list-style: none;
+  padding: 0;
+  margin: 4rem 0 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.subjects a {
+  display: block;
+  border-top: 1px solid var(--rule);
+  padding-top: 0.75rem;
+  color: var(--ink);
+}
+
+.subjects a:hover {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.subjects strong {
+  display: block;
+  font-family: 'Playfair Display SC', serif;
+  font-size: 1.1rem;
+}
+
+.subjects span {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
 }

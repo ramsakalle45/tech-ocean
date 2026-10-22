@@ -1,0 +1,67 @@
+---
+id: contributing
+title: Contributing
+sidebar_label: Contributing
+description: How to add a topic, fix a mistake, or submit a module.
+slug: /contributing
+tags: [meta]
+---
+
+# Contributing
+
+Thank you for helping. This book stays useful only if readers keep correcting
+it.
+
+## The short version
+
+1. Fork the repository and create a branch.
+2. Add or edit a file inside `docs/`.
+3. Open a pull request describing what changed and why.
+
+You do **not** need to know React to contribute content. A topic is a
+Markdown file with a small block of metadata at the top.
+
+## Adding a topic
+
+Topics live at `docs/<subject>/<level>/<module>/<NN-topic>.mdx`. Copy an
+existing topic in the same module and change the content.
+
+Rules:
+
+- **One idea per file**, 5 to 15 minutes of reading.
+- Two-digit numeric prefixes control order: `01-`, `02-`, `03-`.
+- Never go deeper than `subject / level / module / topic`.
+- Every code example must run as written.
+- Do not copy text from another site. Explain it in your own words.
+
+## Style
+
+- Address the reader as "you".
+- Prefer short paragraphs and concrete examples over abstractions.
+- Explain *why* before *how*.
+- Interview material belongs in an **Interview Corner** section near the end.
+
+## Claims and accuracy
+
+If you are unsure about a detail, say so in the pull request rather than
+guessing. Wrong explanations are worse than missing ones, because readers
+trust them.
+
+## Licensing
+
+By contributing you agree that:
+
+- **Code** is released under the MIT licence.
+- **Written content** is released under CC BY-SA 4.0.
+
+See `LICENSE` and `LICENSE-CONTENT` in the repository root.
+
+## Running the site locally
+
+```bash
+npm install
+npm run start
+```
+
+The site builds with `npm run build`. A broken internal link fails the build,
+so run it before opening a pull request.

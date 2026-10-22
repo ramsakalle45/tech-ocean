@@ -37,6 +37,11 @@
     "@types/react": "^19.0.0",
     "typescript": "~6.0.2"
   },
+  "overrides": {
+    "tinypool": "^2.2.0",
+    "serialize-javascript": "^7.1.2",
+    "postcss-selector-parser": "^7.1.7"
+  },
   "browserslist": {
     "production": [
       ">0.5%",

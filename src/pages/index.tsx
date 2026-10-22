@@ -1,43 +1,46 @@
 import type {ReactNode} from 'react';
-import clsx from 'clsx';
 import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
-import Heading from '@theme/Heading';
-
 import styles from './index.module.css';
 
-function HomepageHeader() {
-  const {siteConfig} = useDocusaurusContext();
-  return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <Heading as="h1" className="hero__title">
-          {siteConfig.title}
-        </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>
-          <Link
-            className="button button--secondary button--lg"
-            to="/docs/intro">
-            Docusaurus Tutorial - 5min ⏱️
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
+const subjects = [
+  {name: 'Python', to: '/docs/python', blurb: 'Syntax to the GIL'},
+  {name: 'SQL', to: '/docs/sql', blurb: 'Queries to query plans'},
+  {name: 'GenAI', to: '/docs/genai', blurb: 'Tokens to production'},
+  {name: 'System Design', to: '/docs/system-design', blurb: 'Scaling to case studies'},
+];
 
+/**
+ * Phase 1 placeholder cover. Phase 2 replaces this with the leather-and-gold
+ * book cover described in the blueprint.
+ */
 export default function Home(): ReactNode {
-  const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
+      title="Ram's Dev Ocean"
+      description="A free, open-source book on Python, SQL, GenAI and System Design, with an assessment at the end of every module.">
+      <main className={styles.cover}>
+        <p className={styles.kicker}>An open book</p>
+        <h1 className={styles.title}>Ram's Dev Ocean</h1>
+        <p className={styles.tagline}>
+          Python, SQL, GenAI and System Design — from basics to advanced, with a
+          short assessment at the end of every module.
+        </p>
+
+        <Link className={styles.cta} to="/docs/intro">
+          Start reading
+        </Link>
+
+        <ul className={styles.subjects}>
+          {subjects.map((s) => (
+            <li key={s.name}>
+              <Link to={s.to}>
+                <strong>{s.name}</strong>
+                <span>{s.blurb}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </main>
     </Layout>
   );
