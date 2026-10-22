@@ -1,0 +1,46 @@
+name: Bug report
+description: Something on the site is broken, wrong or unreadable.
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What went wrong?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where on the site?
+      placeholder: /docs/python/basics/syntax-and-variables/introduction
+    validations:
+      required: true
+
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Which theme?
+      options:
+        - Daylight
+        - Candlelight
+        - Both
+        - Not applicable
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device and browser
+      placeholder: iPhone 15 · Safari 18
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Drag images in. For a contrast or layout problem, a screenshot is worth a thousand words.

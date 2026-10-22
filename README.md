@@ -49,14 +49,16 @@ and open the printed URL.
 docs/                 all learning content
   <subject>/<level>/<module>/<topic>.mdx
 src/
-  components/         Callout, DropCap, ChapterHeader, Figure, DraftNotice
+  components/         Callout, DropCap, ChapterHeader, Figure, DraftNotice, Quiz
   css/theme/          tokens · typography · page · components · responsive · motion
   pages/index.tsx     the book cover
   theme/Root.tsx      page turn, and the navigation fade
   theme/prismBook.ts  syntax highlighting for both colour themes
   utils/roman.ts      Roman numerals for chapter numbers
-static/               favicon, social card
-BLUEPRINT.md          the design brief this site is built from
+  utils/progress.ts   quiz scores and completion, in localStorage
+static/               favicon, social card, robots.txt
+scripts/              validate-quizzes.js — the quiz schema check
+templates/            copy these to start a new topic or module
 ```
 
 Ordering is controlled by two-digit prefixes (`01-`, `02-`). Docusaurus strips

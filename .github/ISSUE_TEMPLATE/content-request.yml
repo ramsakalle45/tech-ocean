@@ -1,0 +1,41 @@
+name: Content request
+description: Suggest a topic, module or subject that is missing or needs work.
+title: "[Content] "
+labels: ["content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting content. Every module page in this book is a
+        roadmap — the topics under it are claims on work nobody has done yet.
+
+  - type: input
+    id: subject
+    attributes:
+      label: Subject
+      placeholder: python, sql, genai or system-design
+    validations:
+      required: true
+
+  - type: input
+    id: where
+    attributes:
+      label: Where would it live?
+      description: subject / level / module — a link to the module page is ideal
+      placeholder: python / basics / syntax-and-variables
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What should it teach?
+      description: A sentence or two is plenty. What should a reader be able to do afterwards?
+    validations:
+      required: true
+
+  - type: textarea
+    id: anything
+    attributes:
+      label: Anything else?
+      description: Examples you'd want included, sources, or why this matters.
