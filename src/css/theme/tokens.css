@@ -22,6 +22,7 @@
   --ink: #2b2118; /* warm black */
   --ink-soft: #5a4a3a; /* secondary text — 8:1 on paper */
   --accent: #8b2f1f; /* faded red — 7:1 on paper */
+  --ok: #2f6b3a; /* correct answers — 5.4:1 on paper */
   --gold: #b08d3c; /* ornaments and rules only — 2.6:1, never text */
   --gold-ink: #7d5f18; /* gold for small text — 5:1 on paper */
   --rule: #cdbb94;
@@ -92,6 +93,7 @@
   --ink: #e8dcc2;
   --ink-soft: #b9a98a;
   --accent: #d4694f;
+  --ok: #9ccb8f; /* correct answers — 9.5:1 on the candlelight paper */
   --gold: #d1a954;
   --gold-ink: #d1a954; /* 7.9:1 on the candlelight paper */
   --rule: #3d3022;

@@ -29,5 +29,8 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      - name: Validate quizzes
+        run: npm run validate:quizzes
+
       - name: Build
         run: npm run build

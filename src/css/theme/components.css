@@ -28,6 +28,307 @@
 }
 
 /* ============================================================
+   Quiz — a module assessment, set like an exercise in the book
+   ============================================================ */
+
+.quiz {
+  margin: 2rem 0;
+  padding: 1.4rem 1.5rem 1.5rem;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--gold);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--paper) 88%, var(--desk) 12%);
+  color: var(--ink);
+}
+
+.quiz__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.quiz__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+}
+
+.quiz__meta {
+  margin: 0;
+  font-family: var(--font-hand);
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.quiz__progress {
+  height: 4px;
+  margin-bottom: 1.1rem;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+  overflow: hidden;
+}
+
+.quiz__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--motion-fast, 180ms) ease;
+}
+
+.quiz__question {
+  margin: 0 0 1rem;
+  font-size: var(--step-0);
+  line-height: 1.5;
+}
+
+.quiz__code {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--plate);
+  color: var(--plate-ink);
+  font-size: var(--step--1);
+  overflow-x: auto;
+}
+
+.quiz__options {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.quiz__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  cursor: pointer;
+  line-height: 1.45;
+}
+
+.quiz__option:hover {
+  border-color: var(--gold);
+}
+
+.quiz__option input {
+  margin: 0.35rem 0 0;
+  accent-color: var(--accent);
+}
+
+.quiz__option-letter {
+  flex: 0 0 auto;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.quiz__option--right {
+  border-color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 10%, var(--paper));
+}
+
+.quiz__option--right .quiz__option-letter {
+  color: var(--ok);
+}
+
+.quiz__option--wrong {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--paper));
+}
+
+.quiz__input {
+  margin: 0 0 1rem;
+}
+
+.quiz__input-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.quiz__input-field {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+}
+
+.quiz__input-field:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.quiz__feedback {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+
+.quiz__feedback--right {
+  border-left-color: var(--ok);
+}
+
+.quiz__feedback--wrong {
+  border-left-color: var(--accent);
+}
+
+.quiz__verdict {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.quiz__feedback--right .quiz__verdict {
+  color: var(--ok);
+}
+
+.quiz__feedback--wrong .quiz__verdict {
+  color: var(--accent);
+}
+
+.quiz__explanation {
+  margin: 0;
+  font-size: var(--step--1);
+  line-height: 1.55;
+}
+
+.quiz__topic-ref {
+  margin: 0.5rem 0 0;
+  font-size: var(--step--1);
+}
+
+.quiz__topic-ref a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.quiz__topic-ref-name {
+  font-family: var(--font-hand);
+  color: var(--ink-soft);
+}
+
+.quiz__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.quiz__button {
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.quiz__button:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 85%, var(--ink) 15%);
+  color: var(--paper);
+}
+
+.quiz__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.quiz__note,
+.quiz__previous {
+  margin: 0 0 1rem;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.quiz__score {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--paper);
+  text-align: center;
+}
+
+.quiz__score-value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-4);
+  line-height: 1;
+}
+
+.quiz__score--pass .quiz__score-value {
+  color: var(--ok);
+}
+
+.quiz__score--fail .quiz__score-value {
+  color: var(--accent);
+}
+
+.quiz__score-note {
+  margin: 0.5rem 0 0;
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+
+.quiz--empty {
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   Progress badge — how far this reader has got
+   ============================================================ */
+
+.progress-badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-family: var(--font-hand);
+  font-size: var(--step--1);
+  line-height: 1.5;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+.progress-badge__label {
+  color: var(--ink);
+}
+
+.progress-badge--done {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.progress-badge--attempted {
+  border-color: var(--gold);
+  color: var(--gold-ink);
+}
+
+/* ============================================================
    Callout — a marginal note in the book
    ============================================================ */
 .callout {
