@@ -34,6 +34,7 @@ Other commands:
 npm run build      # static output in build/
 npm run serve      # preview the production build
 npm run typecheck  # tsc, strict mode
+npm run validate:quizzes  # check every quiz.json against the schema
 ```
 
 `npm run build` fails on broken internal links, so run it before opening a pull
@@ -71,10 +72,10 @@ is served at `/docs/python/basics/syntax-and-variables/`.
 |---|---|
 | Structure | 4 subjects · 18 levels · 65 modules scaffolded |
 | Module pages | 65 written — each with learning outcomes, prerequisites, a topic roadmap, a worked example and an interview question |
-| Topics | Not yet written; every module page lists the topics it will contain |
-| Quizzes | Not yet built — the assessment engine is the next phase |
+| Topics | One written — [Decorators](docs/python/02-intermediate/02-decorators-and-generators/01-decorators.mdx). Every other module page lists the topics it will contain |
+| Quizzes | Engine built — `<Quiz />`, `localStorage` progress, schema validator in CI. Four assessments written, one per subject |
 | Theme | Book layout, four responsive tiers, dark mode, page-turn motion — done |
-| Search | Local search, 71 pages indexed — available in the production build |
+| Search | Local search, 76 pages indexed — available in the production build |
 
 Pages marked *Draft* are deliberate: the roadmap stays honest, and each one is
 a claim on a topic somebody can write.

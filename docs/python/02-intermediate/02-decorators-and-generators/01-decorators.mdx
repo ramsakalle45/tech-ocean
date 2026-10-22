@@ -1,0 +1,140 @@
+---
+title: Decorators
+sidebar_label: Decorators
+description: The mechanics of wrapping a function, and how to wrap it well.
+tags: [python, intermediate]
+difficulty: intermediate
+reading_time: 12
+---
+
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+
+<ChapterHeader number={6} eyebrow="Python" />
+
+## What you will learn
+
+- What a decorator actually is, in one sentence
+- Why `@decorator` is just `decorator(function)`
+- How to keep `__name__`, `__doc__` and the signature intact
+- How to write a decorator that takes arguments
+- Why the wrapper needs `*args, **kwargs`
+
+## The one idea
+
+A decorator is a function that takes a function and returns a function.
+
+That is the whole idea. Everything else — timing, caching, retries, authorisation — is built on top of it.
+
+```python
+def announce(fn):
+    def wrapper():
+        print("→ calling")
+        result = fn()
+        print("← done")
+        return result
+    return wrapper
+
+@announce
+def greet(name):
+    return f"Hello, {name}"
+
+greet("Ada")
+```
+
+## The syntax is sugar
+
+The decorator syntax is a shorthand. This is the same program:
+
+```python
+greet = announce(greet)
+```
+
+The name `greet` is bound to whatever `announce` returned. The original function is not modified in place — it is replaced by a reference to the wrapper. Keep that in mind: after decoration, the name `greet` refers to the wrapper, and the original survives only inside the wrapper's closure.
+
+Because the replacement happens at definition time, decoration happens when the module is loaded, not when the function is called.
+
+## Keep the metadata
+
+The wrapper is a different function, so it has a different `__name__` and a different `__doc__`. Anything that introspects the function — logging, `help()`, some test frameworks, `inspect.signature` — sees the wrapper's metadata, not the original's.
+
+`functools.wraps` copies the metadata across:
+
+```python
+import functools
+
+def announce(fn):
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        print("→ calling", fn.__name__)
+        return fn(*args, **kwargs)
+    return wrapper
+```
+
+Now `greet.__name__` is `"greet"` and `greet.__doc__` is the original docstring.
+
+## Accept anything
+
+The wrapper must be callable with whatever the wrapped function accepts. A fixed signature like `def wrapper(n)` breaks the moment someone calls `greet("Ada", excited=True)`.
+
+Use `*args, **kwargs` and forward them:
+
+```python
+def wrapper(*args, **kwargs):
+    return fn(*args, **kwargs)
+```
+
+This is why every decorator in the standard library — `functools.lru_cache`, `functools.singledispatch`, `contextlib` helpers — accepts `*args, **kwargs`.
+
+<Callout type="warning" title="Common mistake">
+Wrapping the call but forgetting to return it. `fn(*args, **kwargs)` runs the function and throws the result away, so the decorated function returns `None`. Always `return fn(...)`.
+</Callout>
+
+## Decorators that take arguments
+
+A decorator with arguments needs three layers: the outer function collects the arguments, the middle one builds the decorator, and the inner one is the wrapper.
+
+```python
+import functools
+
+def retry(times=3):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            last = None
+            for _ in range(times):
+                try:
+                    return fn(*args, **kwargs)
+                except Exception as error:
+                    last = error
+            raise last
+        return wrapper
+    return decorator
+
+@retry(times=5)
+def fetch(url):
+    ...
+```
+
+The three layers are a consequence of the syntax, not a style choice. `@retry(times=5)` means `retry(times=5)(fetch)`, so `retry` must return the actual decorator.
+
+## Order of application
+
+When several decorators are stacked, the one closest to the function is applied first.
+
+```python
+@outer
+@inner
+def work():
+    ...
+```
+
+This is `work = outer(inner(work))`. Calling `work` runs `outer`'s wrapper, which calls `inner`'s wrapper, which calls the real function. So `inner` is the inner layer at call time, and `outer` is the outermost.
+
+## Quick recap
+
+- A decorator is a function that takes a function and returns a function.
+- `@decorator` means `decorator(function)`, applied at definition time.
+- Use `functools.wraps` so the function keeps its name, docstring and signature.
+- The wrapper takes `*args, **kwargs` and returns the result.
+- A decorator with arguments needs three nested functions.

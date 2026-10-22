@@ -1,0 +1,74 @@
+{
+  "title": "Decorators and Generators",
+  "passMark": 70,
+  "questions": [
+    {
+      "id": "py-decorators-1",
+      "type": "mcq",
+      "question": "What does @functools.wraps do on a wrapper function?",
+      "options": [
+        "It runs the wrapped function immediately",
+        "It copies the wrapped function's metadata — name, docstring and signature — onto the wrapper",
+        "It caches the result of the wrapped function",
+        "It makes the wrapper thread-safe"
+      ],
+      "answer": 1,
+      "explanation": "functools.wraps copies __name__, __doc__, __wrapped__ and the signature from the wrapped function onto the wrapper, so introspection keeps working. It does not run, cache or lock anything.",
+      "topicRef": "01-decorators"
+    },
+    {
+      "id": "py-decorators-2",
+      "type": "mcq",
+      "question": "Given @outer stacked above @inner on a function, which wrapper runs first when the function is called?",
+      "options": [
+        "outer, because it is written first",
+        "inner, because it is applied first and sits closest to the function",
+        "Both run at the same time",
+        "Neither — only the topmost decorator applies"
+      ],
+      "answer": 1,
+      "explanation": "Decorators are applied bottom-up: the decorator closest to the function is applied first, so inner wraps the function and outer wraps inner. At call time the call enters outer's wrapper first and reaches inner's wrapper last.",
+      "topicRef": "01-decorators"
+    },
+    {
+      "id": "py-decorators-3",
+      "type": "multi",
+      "question": "Which of these belong in a decorator wrapper's signature? Select all that apply.",
+      "options": [
+        "*args",
+        "**kwargs",
+        "def wrapper(n: int)",
+        "return fn(*args, **kwargs)"
+      ],
+      "answer": [0, 1, 3],
+      "explanation": "A wrapper must accept whatever the wrapped function accepts, so it takes *args and **kwargs and forwards them. A fixed signature like wrapper(n: int) breaks the moment the caller passes something else.",
+      "topicRef": "01-decorators"
+    },
+    {
+      "id": "py-decorators-4",
+      "type": "truefalse",
+      "question": "A decorator is applied to the function every time the function is called.",
+      "answer": false,
+      "explanation": "False. Decoration happens once, at definition time — @decorator is shorthand for name = decorator(name). The wrapper is what runs on every call.",
+      "topicRef": "01-decorators"
+    },
+    {
+      "id": "py-decorators-5",
+      "type": "code-output",
+      "question": "What does this print?",
+      "code": "import functools\n\ndef tag(fn):\n    @functools.wraps(fn)\n    def wrapper(*args, **kwargs):\n        return fn(*args, **kwargs)\n    return wrapper\n\n@tag\ndef greet(name):\n    \"\"\"Say hello.\"\"\"\n    return f\"Hello, {name}\"\n\nprint(greet.__name__)",
+      "answer": "greet",
+      "explanation": "functools.wraps copies __name__ from greet onto the wrapper, so greet.__name__ is still 'greet'. Without it the answer would be 'wrapper'.",
+      "topicRef": "01-decorators"
+    },
+    {
+      "id": "py-decorators-6",
+      "type": "code-output",
+      "question": "What does this print?",
+      "code": "def twice(fn):\n    def wrapper(*args, **kwargs):\n        return fn(*args, **kwargs)\n    return wrapper\n\n@twice\ndef add(a, b):\n    return a + b\n\nprint(add(2, 3))",
+      "answer": "5",
+      "explanation": "The wrapper forwards the arguments and returns the result, so add(2, 3) is 5. A wrapper that calls fn but forgets to return the result would print None instead.",
+      "topicRef": "01-decorators"
+    }
+  ]
+}
