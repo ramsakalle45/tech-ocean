@@ -1,34 +1,86 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Mock Tests — GenAI module introduction.
+title: Mock Tests
+sidebar_label: Mock Tests
+description: Timed design and coding rounds for GenAI interviews.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 90
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={19} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Design an LLM feature in 45 minutes, with the trade-offs stated
+- Write a RAG pipeline with a working evaluation harness
+- Review your own design as an interviewer would
 
-## The Concept
+## Why it matters
 
-To be written.
+GenAI interviews mix system design with model-specific detail. Practising the design shape is what makes the model details land in the time allowed.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [System Design for GenAI](../system-design-for-genai/introduction) — the design patterns from the previous module apply here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Round One | feature design and a short pipeline, with solutions | Planned |
+| 02 | Round Two | full system design with retrieval and tools | Planned |
+| 03 | Round Three | production incident and debugging scenarios | Planned |
+| 04 | Retakes | timed again, targeting what you missed | Planned |
+
+## A worked example
+
+```python
+# Round One, Problem 2 — build the evaluation harness.
+#
+# "Given a corpus of documents and a set of questions with the
+#  document that answers each one, write a function that measures
+#  retrieval recall@k and reports the misses."
+
+def evaluate_retrieval(corpus, questions, *, k=5) -> Report:
+    misses = []
+    hits = 0
+
+    for case in questions:
+        retrieved = vector_search(case.question, limit=k)
+        ids = {chunk.document_id for chunk in retrieved}
+
+        if case.answer_document_id in ids:
+            hits += 1
+        else:
+            misses.append(Miss(
+                question=case.question,
+                expected=case.answer_document_id,
+                got=sorted(ids),
+            ))
+
+    return Report(
+        recall_at_k=hits / len(questions),
+        misses=misses,
+    )
 ```
 
-## Quick Recap
+The misses are the output that matters. They tell you which documents to inspect for chunking problems.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your assistant works in testing but fails in production. How do you debug?**
 
-## Further Reading
+Compare the traces. The likely differences are data (production corpus is different or noisier), retrieval (a different query distribution, or a filter that excludes too much), and configuration (a different model tier, a prompt that depends on a variable that is set differently). Pull the failing request IDs, replay them against the evaluation set, and see whether the eval set is even representative — if it passes on your own questions and fails on real ones, your eval set is the problem.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- State the design, then the trade-offs, then the metrics.
+- Build the evaluation harness before the feature.
+- Production failures are usually a distribution difference.

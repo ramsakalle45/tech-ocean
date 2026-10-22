@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Tokens and Embeddings — GenAI module introduction.
+title: Tokens and Embeddings
+sidebar_label: Tokens and Embeddings
+description: How text becomes numbers, and how meaning becomes geometry.
 tags: [genai, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={2} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain tokenisation and why token counts differ from word counts
+- Work out the cost and context-window impact of a piece of text
+- Describe what an embedding vector represents
+- Measure similarity between vectors and know which metric to use
 
-## The Concept
+## Why it matters
 
-To be written.
+Token counts drive your bill and your context limits. Embeddings drive retrieval. Both are invisible in application code until you suddenly run out of context or fail to find the right document.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [What Are LLMs](../what-are-llms/introduction) — tokens are the model’s unit of work
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Tokenisation | subword vocabularies, and why tokens are not words | Planned |
+| 02 | Context Windows and Cost | counting tokens, and budgeting a request | Planned |
+| 03 | Embedding Vectors | from meaning to geometry | Planned |
+| 04 | Similarity | cosine, dot product, and distance | Planned |
+
+## A worked example
+
+```python
+import math
+
+def cosine(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(y * y for y in b))
+    return dot / (norm_a * norm_b)
+
+# 1.0 = identical direction, 0.0 = orthogonal, -1.0 = opposite
+print(round(cosine([1, 0, 0], [1, 0, 0]), 2))   # 1.0
+print(round(cosine([1, 0, 0], [0, 1, 0]), 2))   # 0.0
 ```
 
-## Quick Recap
+Cosine similarity ignores magnitude and compares direction, which is why it is the default for text embeddings.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A 500-word document costs far more tokens than you expect. Why?**
 
-## Further Reading
+Subword tokenisation splits uncommon words, whitespace, punctuation and even numbers into multiple tokens. Technical prose with identifiers, code and URLs tokenises much worse than ordinary English — often two to four tokens per word. Tokenise your actual corpus and measure rather than estimating from word counts.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Tokens are subword units. Count them, do not estimate them.
+- Embeddings place related text in nearby directions in high-dimensional space.
+- Cosine similarity compares direction, which is what you usually want.

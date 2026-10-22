@@ -1,34 +1,68 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Transactions and Isolation — SQL module introduction.
+title: Transactions and Isolation
+sidebar_label: Transactions and Isolation
+description: What happens when two transactions meet.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={10} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- State the ACID properties and what each one actually buys you
+- Compare the four isolation levels and the anomalies each permits
+- Explain MVCC in terms of what a reader sees
+- Diagnose a deadlock and prevent the common causes
 
-## The Concept
+## Why it matters
 
-To be written.
+Isolation is the contract your application relies on when it reads two rows and expects them to be consistent. Choosing the wrong level is how you get phantom reads that only appear under load.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Indexes and Query Plans](../indexes-and-query-plans/introduction) — locking and MVCC explain a lot of plan behaviour
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | ACID in Practice | what durability and atomicity mean to your code | Planned |
+| 02 | Isolation Levels | read uncommitted through serialisable, and their anomalies | Planned |
+| 03 | MVCC | snapshots, versions, and why readers rarely block | Planned |
+| 04 | Locks and Deadlocks | row locks, lock ordering, and retry strategies | Planned |
+
+## A worked example
+
+```sql
+BEGIN;
+
+SELECT balance FROM accounts WHERE id = 1 FOR UPDATE;   -- row lock
+
+UPDATE accounts SET balance = balance - 100 WHERE id = 1;
+UPDATE accounts SET balance = balance + 100 WHERE id = 2;
+
+COMMIT;
 ```
 
-## Quick Recap
+Always take locks in a consistent order — by primary key ascending — across every transaction. That single rule removes most deadlocks.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is a phantom read, and which isolation level prevents it?**
 
-## Further Reading
+A phantom is a row that appears in a later read of the same range, because another transaction inserted a matching row. Standard `REPEATABLE READ` may allow it, since it guarantees the same rows, not the same set of rows. `SERIALISABLE` prevents it by range-locking the scanned rows. PostgreSQL’s `REPEATABLE READ` uses snapshot isolation and does not allow phantoms.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- ACID is a guarantee about failure, not about speed.
+- Higher isolation means fewer anomalies and more contention.
+- Lock rows in a consistent order to avoid deadlocks.

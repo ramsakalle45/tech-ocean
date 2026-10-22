@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Top Questions — Python module introduction.
-tags: [python, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Top Questions
+sidebar_label: Top Questions
+description: The Python questions that come up again and again.
+tags: [python, intermediate]
+difficulty: intermediate
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={13} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Answer the classic Python questions without hesitating on the fundamentals
+- Explain mutability, scoping and identity clearly enough to satisfy an interviewer
+- Connect the language details back to production consequences
 
-## The Concept
+## Why it matters
 
-To be written.
+These questions come up in almost every Python interview, and the answers are short once you understand why they behave the way they do.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [OOP](../../intermediate/oop/introduction) — classes and dunder methods come up constantly here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Language Fundamentals | mutability, `is` vs `==`, truthiness, scoping | Planned |
+| 02 | Collections and Iteration | comprehensions, dict ordering, generators | Planned |
+| 03 | Classes and Objects | dunder methods, properties, inheritance | Planned |
+| 04 | Advanced Topics | decorators, generators, GIL, garbage collection | Planned |
+
+## A worked example
+
+```python
+def trap():
+    items = []
+    for i in range(3):
+        items.append(lambda: i)
+    return [f() for f in items]      # [2, 2, 2] — late binding
+
+def fixed():
+    items = []
+    for i in range(3):
+        items.append(lambda i=i: i)
+    return [f() for f in items]      # [0, 1, 2]
 ```
 
-## Quick Recap
+Both functions look identical. The difference is one keyword argument, and it is the difference between a bug and a feature.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is the difference between `is` and `==`?**
 
-## Further Reading
+`==` asks whether two objects are equal by value — and that is defined per type, so a custom class can decide what equality means. `is` asks whether two names point at the same object. Small integers and short strings are interned, so `x is y` can be true for equal values; that is an implementation detail, not a guarantee you should rely on.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Interning makes `is` unreliable for value comparison.
+- Closures bind late unless you bind explicitly.
+- Know the cost of each operation you quote.

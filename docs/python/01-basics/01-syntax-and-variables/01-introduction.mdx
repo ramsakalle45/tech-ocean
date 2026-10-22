@@ -1,34 +1,65 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Syntax and Variables — Python module introduction.
+title: Syntax and Variables
+sidebar_label: Syntax and Variables
+description: How Python reads a line of code, and how names hold values.
 tags: [python, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 35
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={1} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Read a line of Python and say what it does, out loud
+- Create and rebind names, and predict what a name points at afterwards
+- Tell the difference between the four built-in scalar types by what they can do
+- Explain why `1 == 1.0` but `1 is not 1.0`
 
-## The Concept
+## Why it matters
 
-To be written.
+Almost every Python bug that looks mysterious is a name pointing at something other than what you assumed. Reading code precisely is the first half of writing it precisely.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- None. This module starts from the ground up.
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Variables and Names | Assignment, rebinding, and the reference model | Planned |
+| 02 | Data Types | int, float, str, bool, and what each one can do | Planned |
+| 03 | Operators | Arithmetic, comparison, logical, and the membership operators | Planned |
+| 04 | The REPL and the Editor | Reading errors, and using the interpreter to check your thinking | Planned |
+
+## A worked example
+
+```python
+x = 10
+y = x          # y refers to the same int object
+x = 20         # rebinds x; y is untouched
+
+print(x, y)    # 20 10
 ```
 
-## Quick Recap
+Names point at objects, they do not hold copies. `y = x` makes two names for one object; `x = 20` points `x` at a different object entirely.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What does `a = b = []` do, and what is the trap?**
 
-## Further Reading
+Both `a` and `b` refer to the *same* list. Appending to `a` also appends to `b`. The trap is assuming `a = b = []` creates two empty lists — it creates one, referenced twice. The same trap reappears with `[[]] * 3`, which builds one list three times over.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Assignment binds a name to an object; it never copies.
+- Four scalar types cover most of what you will write: int, float, str, bool.
+- `==` compares values, `is` compares identity — they are not interchangeable.

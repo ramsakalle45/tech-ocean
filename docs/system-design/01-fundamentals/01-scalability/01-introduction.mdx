@@ -1,34 +1,77 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Scalability — System Design module introduction.
+title: Scalability
+sidebar_label: Scalability
+description: Growing a system without it falling over on the way.
 tags: [system-design, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={1} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Define latency, throughput and scalability, and tell them apart
+- Explain vertical and horizontal scaling, and when each is right
+- Identify the bottleneck before choosing a solution
+- Explain why stateless services scale and stateful ones need care
 
-## The Concept
+## Why it matters
 
-To be written.
+Scaling is a sequence of decisions made under uncertainty. The interview version of this topic is really about whether you can reason about where the limits are.
 
-## Example
+## Prerequisites
+
+- None. This module starts from the ground up.
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Vocabulary | latency, throughput, concurrency, and capacity | Planned |
+| 02 | Vertical and Horizontal Scaling | bigger machines versus more machines | Planned |
+| 03 | Where Systems Break | bottlenecks, and the queue that saves you | Planned |
+| 04 | Stateless Services | why statelessness is the key to scale-out | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Capacity planning, in the simplest form:
+
+  requests/second  =  peak_users × requests_per_user
+  instances needed = ceil(requests/second ÷ instances_per_second)
+  cpu needed       = instances × cpu_per_instance
+
+Work one example end to end:
+
+  100,000 daily users, 5% peak-hour, 10 requests each in that hour
+    → 100,000 × 0.05 × 10 = 50,000 requests in the peak hour
+    → 50,000 / 3600        ≈ 14 requests/second
+
+With a service that handles 50 requests/second per instance,
+plus 3× headroom for traffic spikes:
+    → 14 × 3 ÷ 50 ≈ 1 instance → run 3, so one can die
+
+Always state the headroom assumption out loud.
 ```
 
-## Quick Recap
+The interviewer cares that you did the arithmetic and said your assumptions, not that you reached a particular number.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your service handles 1,000 requests per second and 99% of them are reads. How do you scale it?**
 
-## Further Reading
+Start with the read path, because it is 99% of the traffic. Put a cache in front of the database and see how much of that traffic it absorbs — for many read-heavy services it is most of it. Then scale the database with read replicas, and make sure the service tier is stateless so it can scale horizontally behind a load balancer. I would also check whether the requests need to be synchronous at all.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Find the bottleneck before buying anything.
+- Scale out for stateless work; scale up when the data is the limit.
+- Always plan headroom and single-instance failure.

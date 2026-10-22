@@ -1,34 +1,69 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Url Shortener — System Design module introduction.
-tags: [system-design, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: URL Shortener
+sidebar_label: URL Shortener
+description: A small system with a real scale problem inside it.
+tags: [system-design, intermediate]
+difficulty: intermediate
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={9} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Design the key generation and the read path for a shortener
+- Estimate storage and throughput from traffic numbers
+- Handle custom aliases, expiry and abuse
+- Choose between a counter, a hash and a random key
 
-## The Concept
+## Why it matters
 
-To be written.
+The URL shortener is the classic first design interview: small scope, but it forces you to think about key generation, storage, caching and redirect latency.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [CDN and API Design](../../building-blocks/cdn-and-api-design/introduction) — it is an API plus a very hot read path
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Key Generation | counter plus encoding, hashing, and pre-generated keys | Planned |
+| 02 | The Read Path | cache, redirect, and the CDN | Planned |
+| 03 | The Write Path | custom aliases, validation, and collision handling | Planned |
+| 04 | Estimation and Abuse | sizing the store, and rate limiting | Planned |
+
+## A worked example
+
+```python
+ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+def encode(number: int, *, length: int = 7) -> str:
+    """Base-62 over a counter. No collisions, as long as the counter is unique."""
+    out = []
+    for _ in range(length):
+        number, remainder = divmod(number, len(ALPHABET))
+        out.append(ALPHABET[remainder])
+    return "".join(reversed(out))
 ```
 
-## Quick Recap
+A counter is collision-free but guessable. Base-62 of a random 48-bit integer is unguessable and has a birthday-bound collision risk, which you handle by retrying on insert.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How would you design the key generation?**
 
-## Further Reading
+Two workable options. A database counter with base-62 encoding guarantees uniqueness and is simple, but the keys are sequential and therefore guessable and enumerable. A random 48- or 64-bit key is unguessable, and collisions are astronomically unlikely at that size; you handle a collision by retrying on insert. For a system that needs both, pre-generate a pool of random keys in advance and hand them out — that removes the round trip to the database at write time.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Counter for uniqueness, randomness for unguessability.
+- The read path is the hot path — cache it aggressively.
+- Do the arithmetic out loud: QPS, storage per URL, and years of growth.

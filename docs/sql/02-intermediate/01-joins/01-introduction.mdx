@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Joins — SQL module introduction.
+title: Joins
+sidebar_label: Joins
+description: Combining tables, and the rows each join type keeps.
 tags: [sql, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={4} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Choose the right join type for the question being asked
+- Predict the row count of any join before running it
+- Write an anti-join and a self-join without subquery gymnastics
+- Spot a join that has accidentally multiplied your rows
 
-## The Concept
+## Why it matters
 
-To be written.
+A join is a promise about which rows survive. Choosing the wrong one silently drops data or duplicates it, and the query still returns a plausible-looking number.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Sorting and Aggregates](../../basics/sorting-and-aggregates/introduction) — duplicate rows after a join are usually an aggregation problem
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Inner and Outer Joins | INNER, LEFT, RIGHT, FULL, and NULL padding | Planned |
+| 02 | Join Conditions | the ON clause, non-equi joins, and cross joins | Planned |
+| 03 | Self and Anti Joins | a table joined to itself, and finding what is missing | Planned |
+| 04 | Join Pitfalls | fan-out, duplicate keys, and counting before joining | Planned |
+
+## A worked example
+
+```sql
+-- Anti-join: customers who have never ordered.
+SELECT c.id, c.name
+FROM customers AS c
+LEFT JOIN orders AS o ON o.customer_id = c.id
+WHERE o.id IS NULL;
+
+-- Self-join: every employee and their manager.
+SELECT e.name AS employee, m.name AS manager
+FROM employees AS e
+LEFT JOIN employees AS m ON m.id = e.manager_id;
 ```
 
-## Quick Recap
+The `LEFT JOIN ... WHERE o.id IS NULL` pattern is the standard anti-join. It relies on `id` being non-null, which is true for a primary key.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A query returns 10,000 rows from a join, but each table has 100 rows. What happened?**
 
-## Further Reading
+Fan-out. The join produced 100 × 100 combinations, meaning the join key is not unique on at least one side, or the condition is too loose. Check the cardinality of the key on both sides before joining, and aggregate first if you only need summary rows.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Left join keeps unmatched left rows; inner join keeps only matches.
+- Count the rows before and after the join when a total looks wrong.
+- Anti-joins are `LEFT JOIN` plus `IS NULL`.

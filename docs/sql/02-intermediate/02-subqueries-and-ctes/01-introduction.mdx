@@ -1,34 +1,74 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Subqueries and Ctes — SQL module introduction.
+title: Subqueries and CTEs
+sidebar_label: Subqueries and CTEs
+description: Asking a question of a question, and making the logic readable.
 tags: [sql, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={5} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Use a scalar subquery, a correlated subquery and an `EXISTS` for the right situation
+- Break a hard query into readable CTEs
+- Write a recursive CTE for a hierarchy
+- Avoid the correlated subquery that runs once per row
 
-## The Concept
+## Why it matters
 
-To be written.
+Nested queries are where SQL stops being obvious. Most "my query is too complex" problems are really "my query is doing three things at once".
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Joins](../joins/introduction) — a subquery is often a join written differently
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Subquery Types | scalar, IN, and correlated subqueries | Planned |
+| 02 | EXISTS and NOT EXISTS | semi-joins, and when they beat IN | Planned |
+| 03 | Common Table Expressions | readability, and reusing an intermediate result | Planned |
+| 04 | Recursive CTEs | tree and graph traversal in SQL | Planned |
+
+## A worked example
+
+```sql
+WITH RECURSIVE category_tree AS (
+    -- anchor: the roots
+    SELECT id, parent_id, name, 0 AS depth
+    FROM categories
+    WHERE parent_id IS NULL
+
+    UNION ALL
+
+    -- recursive step: one level deeper
+    SELECT c.id, c.parent_id, c.name, t.depth + 1
+    FROM categories AS c
+    JOIN category_tree AS t ON c.parent_id = t.id
+)
+SELECT name, depth FROM category_tree ORDER BY depth, name;
 ```
 
-## Quick Recap
+A recursive CTE needs an anchor and a recursive step, joined with `UNION ALL`. The recursion stops when the recursive step returns no rows.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When is `EXISTS` better than `IN`?**
 
-## Further Reading
+`EXISTS` stops at the first match, so it can short-circuit; `IN` may need to build the whole set. `EXISTS` is also null-safe: `NOT IN` with a subquery that returns a single NULL returns no rows at all, which is a classic silent bug. `NOT EXISTS` does not have that failure mode.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Use CTEs to name the steps of a query.
+- Correlated subqueries re-run per row — watch the cost.
+- Prefer `NOT EXISTS` to `NOT IN` when nulls are possible.

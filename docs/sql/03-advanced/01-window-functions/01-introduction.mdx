@@ -1,34 +1,75 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Window Functions — SQL module introduction.
+title: Window Functions
+sidebar_label: Window Functions
+description: Calculating across rows without collapsing them.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={8} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Use `ROW_NUMBER`, `RANK` and `DENSE_RANK` and know how they differ
+- Compute running totals, moving averages and differences with frame clauses
+- Use `LAG` and `LEAD` to compare a row with its neighbours
+- Know when a window function is the wrong tool and a self-join is better
 
-## The Concept
+## Why it matters
 
-To be written.
+A window function gives you a per-row calculation over a set of rows, while keeping every row. That is exactly what "running total" or "top three per group" needs, and what a group-by aggregate cannot give you.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Group By and Set Operations](../../intermediate/group-by-and-set-operations/introduction) — windows are the other half of the aggregation story
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | OVER and Partitioning | the shape of every window function | Planned |
+| 02 | Ranking Functions | ROW_NUMBER, RANK, DENSE_RANK, and NTILE | Planned |
+| 03 | Frame Clauses | ROWS, RANGE, and running versus moving | Planned |
+| 04 | Value Functions | LAG, LEAD, FIRST_VALUE, LAST_VALUE | Planned |
+
+## A worked example
+
+```sql
+SELECT
+    order_id,
+    customer_id,
+    placed_at,
+    total_cents,
+    SUM(total_cents) OVER (
+        PARTITION BY customer_id
+        ORDER BY placed_at
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS running_total_cents,
+    ROW_NUMBER() OVER (
+        PARTITION BY customer_id
+        ORDER BY placed_at DESC
+    ) AS recency_rank
+FROM orders;
 ```
 
-## Quick Recap
+The frame clause is the part people forget. Without `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, the default frame is the whole partition and the "running" total is wrong.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is the difference between `RANK` and `DENSE_RANK`?**
 
-## Further Reading
+With ties, `RANK` skips the next value — ranks 1, 1, 3 — while `DENSE_RANK` does not — 1, 1, 2. `ROW_NUMBER` breaks ties arbitrarily, so it is not stable unless the ordering is fully deterministic. If you need a stable top-N per group, order by a unique column as the tiebreaker.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Windows compute across rows; aggregation collapses them.
+- Always state the frame clause when you mean "running total".
+- Add a unique tiebreaker to any ranking you intend to page through.

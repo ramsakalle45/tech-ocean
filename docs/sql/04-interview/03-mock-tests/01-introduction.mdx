@@ -1,34 +1,84 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Mock Tests — SQL module introduction.
+title: Mock Tests
+sidebar_label: Mock Tests
+description: Timed SQL rounds with full solutions.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 90
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={14} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write a correct query under a time limit
+- Reason about the shape of the result before you type
+- Debug a wrong answer by checking grain and null handling
 
-## The Concept
+## Why it matters
 
-To be written.
+SQL interviews are mostly about translating a fuzzy business question into a precise query. Practice removes the hesitation that comes from the translating, not the SQL.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Query Challenges](../query-challenges/introduction) — the fluency from the previous module is the point of this one
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Round One | five questions, 30 minutes, with solutions | Planned |
+| 02 | Round Two | five harder questions, 45 minutes | Planned |
+| 03 | Round Three | three production-shaped questions, 60 minutes | Planned |
+| 04 | Retakes | timed again, with the mistakes from last time | Planned |
+
+## A worked example
+
+```sql
+-- Round One, Question 1
+-- "For each month, what percentage of orders were refunded?"
+WITH months AS (
+    SELECT generate_series(
+        DATE '2025-01-01', DATE '2025-12-01', INTERVAL '1 month'
+    ) AS month
+),
+totals AS (
+    SELECT
+        date_trunc('month', placed_at) AS month,
+        COUNT(*) AS total,
+        COUNT(*) FILTER (WHERE status = 'refunded') AS refunded
+    FROM orders
+    WHERE placed_at >= DATE '2025-01-01'
+      AND placed_at <  DATE '2026-01-01'
+    GROUP BY 1
+)
+SELECT
+    m.month,
+    COALESCE(t.refunded, 0) AS refunded,
+    COALESCE(t.total, 0) AS total,
+    ROUND(100.0 * COALESCE(t.refunded, 0) / NULLIF(t.total, 0), 1) AS pct_refunded
+FROM months AS m
+LEFT JOIN totals AS t ON t.month = m.month
+ORDER BY m.month;
 ```
 
-## Quick Recap
+Generating the month series and left-joining it is what makes months with no orders appear as zero rather than vanishing.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your query returns one row when the interviewer expected five. What is the first thing to check?**
 
-## Further Reading
+The grain. Either the join collapsed rows — a missing `GROUP BY` column, or a join to a table that fans out and then got aggregated differently — or the filter is too aggressive. Add a `COUNT(*)` and look at the row count at each stage of the query.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Name the grain of the answer before writing the query.
+- Build up in steps and check the count at each one.
+- A missing month is a data point — generate the series explicitly.

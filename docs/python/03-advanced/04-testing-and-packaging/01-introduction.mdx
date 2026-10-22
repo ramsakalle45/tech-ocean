@@ -1,34 +1,73 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Testing and Packaging — Python module introduction.
+title: Testing and Packaging
+sidebar_label: Testing and Packaging
+description: Tests you can trust, and packages other people can install.
 tags: [python, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 65
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={12} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write tests that fail for the right reason and read clearly
+- Use fixtures and parametrisation to avoid copy-paste
+- Package a project with `pyproject.toml` so it installs cleanly anywhere
+- Set up a virtual environment and dependency pinning that a colleague can reproduce
 
-## The Concept
+## Why it matters
 
-To be written.
+Tests are how a codebase keeps its promises as it changes. Packaging is how anyone else can use it at all. Both are small investments that prevent expensive failures.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Functions](../../basics/functions/introduction) — you need a unit of behaviour to test
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | pytest Basics | discovery, assertions, and the shape of a test | Planned |
+| 02 | Fixtures and Parametrisation | setup, teardown, and testing many cases | Planned |
+| 03 | Packaging with pyproject | metadata, dependencies, entry points | Planned |
+| 04 | Environments and Locking | virtualenvs, pins, and reproducible installs | Planned |
+
+## A worked example
+
+```python
+import pytest
+
+@pytest.mark.parametrize(
+    ("total", "expected"),
+    [(0, 0), (1, 1), (100, 4950)],
+)
+def test_sum_to_n(total, expected):
+    assert sum(range(total + 1)) == expected
+
+
+def test_rejects_negative():
+    with pytest.raises(ValueError, match="non-negative"):
+        sum_to_n(-1)
 ```
 
-## Quick Recap
+Parametrisation turns one test into many cases with no copy-paste. `pytest.raises(..., match=...)` asserts on the message too, so the error stays meaningful.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is a good rule of thumb for what to test?**
 
-## Further Reading
+Test behaviour that matters to the people using the code, and the edges where it breaks: boundaries, empty inputs, error paths. Do not test the language or the framework. If a test would still pass if you rewrote the implementation, it is testing the implementation, not the behaviour.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A good test name reads like a specification.
+- Parametrise instead of copy-pasting.
+- Pin dependencies in a lockfile so a colleague gets the same tree.

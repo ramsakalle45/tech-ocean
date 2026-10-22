@@ -1,34 +1,80 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Mock Tests — Python module introduction.
+title: Mock Tests
+sidebar_label: Mock Tests
+description: Full-length practice, with a worked solution for every problem.
 tags: [python, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 90
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={15} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Work under a time limit and talk through your reasoning as you go
+- Write tests for your own solution before you submit it
+- Review a solution afterwards and name what you would do differently
 
-## The Concept
+## Why it matters
 
-To be written.
+Knowing the material and performing under interview conditions are different skills. Only practice under time pressure builds the second one.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Coding Patterns](../coding-patterns/introduction) — the patterns are the tools; this is where you use them under pressure
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Round One | easiest problems, timed, with solutions | Planned |
+| 02 | Round Two | medium difficulty, mixed patterns | Planned |
+| 03 | Round Three | hard problems, with hints | Planned |
+| 04 | Review and Retake | what you missed, and why | Planned |
+
+## A worked example
+
+```python
+# Round One, Problem 1 — see the module page for the full statement.
+#
+# "Given a list of integers, return the sum of the two largest
+#  that are not adjacent in the original list."
+#
+# Time limit: 20 minutes, including tests.
+
+def two_largest_non_adjacent(nums: list[int]) -> int:
+    if not nums:
+        raise ValueError("need at least two values")
+    if len(nums) == 2:
+        return sum(nums)
+
+    prev_two, prev_one = 0, 0
+    for index, value in enumerate(nums):
+        if index < 2:
+            best = value if index == 0 else nums[0] + value
+        else:
+            best = max(prev_one, prev_two + value)
+        prev_two, prev_one = prev_one, best
+    return prev_one
 ```
 
-## Quick Recap
+The trick is to define the state clearly: "the best sum using the first i elements". Naming the state is most of dynamic programming.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**You finished a problem but your tests did not cover an edge case. What now?**
 
-## Further Reading
+Say it out loud. Interviewers are assessing your process, and a candidate who volunteers "let me check the empty input" is demonstrating exactly the habit they want. Then add the case and see whether your solution still holds — if it does not, that is a good outcome too: you found a bug before they did.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Time-box. A rough first solution beats a perfect third attempt.
+- Test your own solution before you claim it works.
+- Review afterwards — the second attempt is where the learning happens.

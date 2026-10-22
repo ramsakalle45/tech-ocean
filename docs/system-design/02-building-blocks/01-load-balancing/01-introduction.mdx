@@ -1,34 +1,73 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Load Balancing — System Design module introduction.
+title: Load Balancing
+sidebar_label: Load Balancing
+description: Spreading work across machines, and keeping them all reachable.
 tags: [system-design, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={4} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Choose a balancing algorithm and know when round-robin is wrong
+- Explain health checking and why it is a hard problem
+- Place a load balancer at the edge and inside the network
+- Describe what happens during a rolling deploy
 
-## The Concept
+## Why it matters
 
-To be written.
+Load balancing is the first thing between the user and your system, and it is also where the second-most-common interview diagram gets drawn badly.
 
-## Example
+## Prerequisites
+
+- [CAP and Consistency](../../fundamentals/cap-and-consistency/introduction) — replication behind the balancer is a consistency decision
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Layer 4 and Layer 7 | TCP routing versus HTTP-aware routing | Planned |
+| 02 | Balancing Algorithms | round-robin, least-connections, consistent hashing, and weights | Planned |
+| 03 | Health Checks | active versus passive, and why flapping is dangerous | Planned |
+| 04 | Deploys and Draining | rolling deployments behind a balancer | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Round-robin is wrong when instances are not identical:
+
+  instance A: 100ms per request
+  instance B: 900ms per request
+
+  Round-robin sends half the traffic to the slow one, and every
+  user behind it waits. Least-connections does better here, but
+  the real fix is not a smarter algorithm — it is to fix or
+  remove the slow instance.
+
+  Weighted balancing helps when you are deliberately running
+  different tiers: 90% of traffic to the standard fleet, 10% to
+  a canary, so you can compare them under real load.
 ```
 
-## Quick Recap
+A load balancer distributes work; it does not repair a bad instance. Health checking is what removes it from rotation.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you roll out a new version with no downtime?**
 
-## Further Reading
+Deploy the new version alongside the old, have the balancer send a small percentage of traffic to it, and watch error rate and latency for both groups. Increase the percentage in stages, and keep the old version running and able to take traffic back. The parts that make it work are the health check removing bad instances, and a connection drain so in-flight requests finish rather than being cut.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Match the algorithm to the workload; fix slow instances, do not route around them.
+- Health checks must be able to distinguish "busy" from "broken".
+- Canary with weighted routing beats all-at-once deploys.

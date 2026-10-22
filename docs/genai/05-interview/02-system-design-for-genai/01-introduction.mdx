@@ -1,34 +1,76 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: System Design For Genai — GenAI module introduction.
+title: System Design for GenAI
+sidebar_label: System Design for GenAI
+description: Designing a whole LLM-backed system, end to end.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 70
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={18} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Design a chat assistant with retrieval, tools, memory and guardrails
+- Plan the offline and online components of a GenAI system
+- Reason about the data flow from ingestion to answer
+- Identify the failure modes of each component and what to monitor
 
-## The Concept
+## Why it matters
 
-To be written.
+A GenAI design interview is a system design interview with one extra, probabilistic component. The fundamentals still apply; the new part is retrieval, and the honest handling of uncertainty.
 
-## Example
+## Prerequisites
+
+- [Observability](../../production/observability/introduction) — you need to know what you will measure
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Ingestion Pipeline | parsing, chunking, embedding, indexing, refresh | Planned |
+| 02 | The Query Path | rewrite, retrieve, rerank, generate, cite | Planned |
+| 03 | Tools, Memory and State | what the model can reach and what it remembers | Planned |
+| 04 | Evaluation and Monitoring | offline evals, online quality, and feedback loops | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+OFFLINE (per document, on change)
+  parse → chunk → embed → index → record version
+
+ONLINE (per request)
+  question
+    → rewrite
+    → retrieve (filtered, hybrid)
+    → rerank → top-k
+    → assemble prompt with citations
+    → generate (streaming)
+    → validate output
+    → guardrails
+    → respond, with sources
+
+ALWAYS ON
+  trace everything · sample for human review · run offline evals on change
 ```
 
-## Quick Recap
+Draw the two flows separately. Most GenAI design interviews go wrong because the ingestion path and the request path get mixed together on one diagram.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you keep the index fresh when documents change?**
 
-## Further Reading
+Give every document a version and a content hash. On change, delete the chunks for that document and re-index; on delete, remove them. For the online path, either filter on the current version or update in place. For a large corpus, do it incrementally and asynchronously, and track the lag — an index that is a week stale is a different product, and the team should know that number.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Draw ingestion and request paths separately.
+- Version your documents and index them incrementally.
+- Every component needs a monitor and a failure story.

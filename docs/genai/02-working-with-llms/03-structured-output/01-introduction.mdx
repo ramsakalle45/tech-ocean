@@ -1,34 +1,72 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Structured Output — GenAI module introduction.
+title: Structured Output
+sidebar_label: Structured Output
+description: Getting JSON back, reliably, and validating it anyway.
 tags: [genai, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={6} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Constrain a model to a JSON schema and parse the result
+- Validate output with a schema, and decide what to do when it fails
+- Extract structured data from unstructured text
+- Design a schema that is easy for a model to fill correctly
 
-## The Concept
+## Why it matters
 
-To be written.
+Free-form text is hard to build on. A validated object is a contract you can test, cache, and hand to another service. The parsing step is where the reliability comes from.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [LLM APIs](../llm-apis/introduction) — structured output is a parameter on the API call
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Schema-Constrained Generation | how the decoder is guided by a schema | Planned |
+| 02 | Parsing and Validation | parse, validate, and repair | Planned |
+| 03 | Extraction | pulling fields out of free text | Planned |
+| 04 | Schema Design | writing schemas a model fills in accurately | Planned |
+
+## A worked example
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+
+class Ticket(BaseModel):
+    title: str = Field(description="one line, no punctuation at the end")
+    severity: int = Field(ge=1, le=4, description="1 lowest, 4 highest")
+    tags: list[str] = Field(default_factory=list)
+
+try:
+    ticket = Ticket.model_validate_json(model_output)
+except ValidationError as exc:
+    logger.warning("model returned invalid data: %s", exc)   # log, then retry or fall back
+    raise
 ```
 
-## Quick Recap
+Constrained decoding makes invalid output unlikely, not impossible. Validate anyway, and decide in advance whether a failure means retry, fall back, or escalate.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Should you retry when a model returns output that fails schema validation?**
 
-## Further Reading
+Sometimes. If the failure is a small formatting slip, a retry with the validation error fed back usually succeeds. If the model consistently cannot satisfy the schema, the schema is probably wrong — simplify it, loosen a field, or split the task. Cap the retries, and always have a fallback path so the feature degrades instead of failing.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Constrain the decoder with a schema, but still validate the output.
+- Keep schemas shallow — every nesting level is another chance to fail.
+- Always have a fallback when validation fails.

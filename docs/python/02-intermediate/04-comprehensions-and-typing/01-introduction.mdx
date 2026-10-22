@@ -1,34 +1,73 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Comprehensions and Typing — Python module introduction.
+title: Comprehensions and Typing
+sidebar_label: Comprehensions and Typing
+description: Concise collection building, and telling a type checker the truth.
 tags: [python, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={8} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write a comprehension for each of list, dict, set and generator
+- Know when a comprehension should be a plain loop
+- Annotate functions so a type checker catches real mistakes
+- Use `TypedDict`, `Protocol` and generics where they pay off
 
-## The Concept
+## Why it matters
 
-To be written.
+Comprehensions turn a build-then-fill loop into one expression, which reads better and is usually faster. Type hints cost a few minutes and catch a class of bugs that would otherwise only appear in production.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Collections](../../basics/collections/introduction) — comprehensions are the natural way to build a collection from another
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Comprehensions | list, dict, set and the trade-offs | Planned |
+| 02 | Generator Expressions | lazy building, and when they are worth it | Planned |
+| 03 | Type Hints | annotating functions, collections and optionals | Planned |
+| 04 | Protocols and Generics | structural typing and reusable containers | Planned |
+
+## A worked example
+
+```python
+from collections.abc import Iterable, Iterator
+from typing import TypeVar
+
+T = TypeVar("T")
+
+def unique(items: Iterable[T]) -> Iterator[T]:
+    seen: set[T] = set()
+    for item in items:
+        if item not in seen:
+            seen.add(item)
+            yield item
+
+numbers = unique([1, 2, 2, 3, 3, 3])   # a generator, not a list
 ```
 
-## Quick Recap
+A generator expression is the lazy cousin of a list comprehension: same syntax, but nothing is built until you iterate it.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When is a plain loop better than a comprehension?**
 
-## Further Reading
+When the loop does more than produce a value — when it has several statements, when it needs to break out early, or when the intermediate value is not a collection at all. A comprehension that needs a nested `if` to stay readable is usually a loop in disguise.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Comprehensions build a collection; generator expressions build an iterator.
+- Annotate the public surface of a module, not every local.
+- `Optional[X]` means `X | None` — never leave that ambiguous at a call site.

@@ -1,34 +1,91 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Cdn and Api Design — System Design module introduction.
+title: CDN and API Design
+sidebar_label: CDN and API Design
+description: Serving static content close to the user, and designing the interface well.
 tags: [system-design, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={8} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain what a CDN does for latency and for origin load
+- Design an API that is easy to evolve and hard to misuse
+- Use versioning, pagination and idempotency deliberately
+- Handle errors in a way a client can act on
 
-## The Concept
+## Why it matters
 
-To be written.
+A CDN is the cheapest latency you will ever buy, and a well-designed API is what stops one client change from breaking three others.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Caching](../caching/introduction) — a CDN is a cache with a very large key space
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | How a CDN Works | edge locations, cache keys, and cache invalidation | Planned |
+| 02 | API Design | resources, verbs, and consistent conventions | Planned |
+| 03 | Pagination, Filtering and Idempotency | the parts clients get wrong | Planned |
+| 04 | Errors and Versioning | machine-readable errors, and evolving contracts | Planned |
+
+## A worked example
+
+```http
+POST /v1/orders HTTP/1.1
+Host: api.example.com
+Authorization: Bearer <token>
+Idempotency-Key: 9f2c-4b71-0d33
+
+{
+  "customer_id": "cus_8812",
+  "items": [{"sku": "SKU-1", "qty": 2}],
+  "currency": "GBP"
+}
+
+201 Created
+Location: /v1/orders/ord_55120
+Idempotency-Key: 9f2c-4b71-0d33
+
+{
+  "id": "ord_55120",
+  "status": "pending",
+  "total_cents": 4200,
+  "currency": "GBP"
+}
+
+# An error a client can act on:
+422 Unprocessable Entity
+{
+  "error": {
+    "code": "item_out_of_stock",
+    "message": "SKU-1 has 1 in stock, 2 requested",
+    "field": "items[0].qty"
+  }
+}
 ```
 
-## Quick Recap
+A stable `Idempotency-Key` means a client can retry a timed-out request without creating a second order. That is worth more than any other single API feature.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A client needs to retry a payment request. What do you give them?**
 
-## Further Reading
+An idempotency key they generate, that you store with the result. On a retry with the same key, you return the original outcome rather than processing again. Store the key with its response for long enough that a legitimate retry can arrive — usually at least the maximum client retry window — and expire it after. Without this, every network timeout becomes a duplicate charge.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A CDN turns distance into latency and offloads the origin.
+- Design APIs so that a wrong call is hard to make.
+- Give clients an idempotency key and machine-readable errors.

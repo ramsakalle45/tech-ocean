@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Select and Filtering — SQL module introduction.
+title: Select and Filtering
+sidebar_label: Select and Filtering
+description: Reading data out of a table, and asking for exactly the rows you want.
 tags: [sql, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 35
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={1} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Select columns in a deliberate order, with aliases that read well in output
+- Filter with `WHERE` and understand why it runs before aggregation
+- Handle `NULL` correctly instead of assuming it behaves like a value
+- Read a `SELECT` statement and predict how many rows come back
 
-## The Concept
+## Why it matters
 
-To be written.
+Every query you will ever write starts here. The difference between someone who knows SQL and someone who has copied SQL is whether they can predict the result of a statement they have never run.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- None. This module starts from the ground up.
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Shape of a Query | SELECT, FROM, WHERE, ORDER BY, and the order they execute | Planned |
+| 02 | Columns and Aliases | naming things, expressions, and computed columns | Planned |
+| 03 | Filtering with WHERE | operators, ranges, and patterns with LIKE | Planned |
+| 04 | NULL and Three-Valued Logic | why `= NULL` never matches | Planned |
+
+## A worked example
+
+```sql
+SELECT
+    o.id                AS order_id,
+    c.name              AS customer,
+    o.total_cents / 100.0 AS total
+FROM orders AS o
+JOIN customers AS c ON c.id = o.customer_id
+WHERE o.status = 'shipped'
+  AND o.placed_at >= DATE '2026-01-01'
+  AND o.total_cents IS NOT NULL
+ORDER BY o.placed_at DESC
+LIMIT 50;
 ```
 
-## Quick Recap
+Alias columns in the `SELECT` list, not in the `WHERE`. You cannot use an alias in `WHERE` in standard SQL — only in `ORDER BY`.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why does `WHERE column = NULL` return no rows?**
 
-## Further Reading
+Because `NULL` means "unknown", not "no value". Every comparison with `NULL` evaluates to unknown, and `WHERE` keeps a row only when the condition is definitively true. Use `IS NULL` and `IS NOT NULL` instead.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Logical order: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.
+- `WHERE` filters rows; `HAVING` filters groups.
+- Test for null with `IS NULL`, never `= NULL`.

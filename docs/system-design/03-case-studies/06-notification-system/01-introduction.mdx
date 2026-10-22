@@ -1,34 +1,77 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Notification System — System Design module introduction.
+title: Notification System
+sidebar_label: Notification System
+description: Reaching a user on the right channel, exactly once, if at all.
 tags: [system-design, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={14} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Design a multi-channel notification pipeline
+- Apply fan-out, deduplication and rate limiting to notifications
+- Handle per-channel preferences and quiet hours
+- Decide whether delivery guarantees belong in the design
 
-## The Concept
+## Why it matters
 
-To be written.
+Notifications are a system where "deliver everything" is the wrong goal. Relevance, deduplication and user trust matter more than throughput.
 
-## Example
+## Prerequisites
+
+- [Rate Limiter](../rate-limiter/introduction) — the same rate limiting machinery, applied to users instead of APIs
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Channels and Templates | push, email, SMS, in-app, and per-channel rendering | Planned |
+| 02 | Scheduling and Preferences | quiet hours, channel opt-in, and digests | Planned |
+| 03 | Dedup and Prioritisation | collapsing repeats and ranking by urgency | Planned |
+| 04 | Delivery and Reliability | retries, providers, and what to promise | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Pipeline:
+  event → notification service
+            → preferences check (does this user want it, this way?)
+            → dedup check (have we told them this already?)
+            → priority + scheduling (quiet hours? digest?)
+            → per-channel template render
+            → provider queue → push / email / SMS provider
+
+Dedup key example:
+  key = hash(user_id, notification_type, entity_id, window)
+  with a window of a few minutes, a comment storm on one
+  post becomes one push, not forty.
+
+Prioritisation:
+  security alert  → always, ignore quiet hours
+  marketing      → batch into a daily digest
+  social         → drop if the user has not opened the app in 7 days
 ```
 
-## Quick Recap
+The interesting part of a notification system is what it decides *not* to send.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you stop a user getting forty push notifications when their friends comment on one post?**
 
-## Further Reading
+Deduplicate at the source. Give each notification a key derived from the user, the type and the entity, and collapse notifications with the same key inside a short window — typically a few minutes. Combine them into a single push ("3 new comments"). This is a queueing and rate problem, not a delivery problem, so it belongs upstream of the provider call.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- The system’s value is in what it does not send.
+- Deduplicate on user, type and entity within a time window.
+- Check preferences and quiet hours before you spend money on delivery.

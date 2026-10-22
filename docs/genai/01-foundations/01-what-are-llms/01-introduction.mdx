@@ -1,34 +1,73 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: What Are Llms — GenAI module introduction.
+title: What Are LLMs
+sidebar_label: What Are LLMs
+description: What a language model actually does, and what that implies for your code.
 tags: [genai, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 35
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={1} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Describe a language model as next-token prediction, and follow the implications
+- Explain what the training objective does and does not teach a model
+- Distinguish pretraining, fine-tuning and prompting, and when to use each
+- Reason about why models hallucinate, rather than treating it as a bug
 
-## The Concept
+## Why it matters
 
-To be written.
+Almost every practical question about LLMs — why it hallucinated, why the output changed, whether to fine-tune — follows from understanding that the model predicts tokens, not facts.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- None. This module starts from the ground up.
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Next-Token Prediction | the training objective, and what it implies | Planned |
+| 02 | What Training Teaches | patterns, not a database of truth | Planned |
+| 03 | Parameters and Scale | what model size changes, and what it does not | Planned |
+| 04 | Limits and Capabilities | context windows, reasoning, and the tasks models are good at | Planned |
+
+## A worked example
+
+```python
+import math
+from collections import Counter
+
+# The whole idea, in miniature: score every candidate next token,
+# then sample from the resulting distribution.
+counts = Counter("the the the cat sat".split())
+total = sum(counts.values())
+
+logits = {word: math.log(count / total) for word, count in counts.items()}
+probs = {word: math.exp(lp) for word, lp in logits.items()}
+normalised = {w: p / sum(probs.values()) for w, p in probs.items()}
+
+print(normalised)   # a distribution over "the", "cat", "sat"
 ```
 
-## Quick Recap
+A real model computes this over a vocabulary of tens of thousands of tokens, using learned weights instead of counts. Everything else — temperature, sampling, why output varies — builds on this distribution.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why do language models hallucinate?**
 
-## Further Reading
+Because the training objective rewards producing plausible text, not true text. A model that has never seen a fact still has a distribution over how that fact might be worded, and sampling from it produces a fluent, confident, wrong answer. There is no internal signal that distinguishes "I know this" from "this is what such text usually says".
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A language model predicts the next token; everything else follows.
+- Pretraining teaches patterns, not facts. Facts come from retrieval or tuning.
+- Hallucination is a consequence of the objective, not a bug to be patched.

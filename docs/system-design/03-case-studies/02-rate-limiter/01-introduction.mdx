@@ -1,34 +1,81 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Rate Limiter — System Design module introduction.
-tags: [system-design, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Rate Limiter
+sidebar_label: Rate Limiter
+description: Protecting a system from being overwhelmed.
+tags: [system-design, intermediate]
+difficulty: intermediate
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={10} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Implement token bucket and sliding window, and know when each fits
+- Choose the scope: per user, per IP, per API key, or global
+- Distribute a limiter across instances
+- Return a correct response when the limit is hit
 
-## The Concept
+## Why it matters
 
-To be written.
+Rate limiting is a small component with an outsized effect: it protects everything downstream, and getting the algorithm right matters more than the storage.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Queues and Async Processing](../../building-blocks/queues/introduction) — a limiter is a fast decision made on the request path
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Algorithms | fixed window, sliding window, token bucket, leaky bucket | Planned |
+| 02 | Scope and Keys | who is limited, and against what | Planned |
+| 03 | Distributed Limiting | centralised counters versus local ones | Planned |
+| 04 | Client Behaviour | status codes, headers, and retry guidance | Planned |
+
+## A worked example
+
+```python
+class TokenBucket:
+    """Token bucket: allows bursts, smooths the average rate."""
+
+    def __init__(self, *, rate_per_second: float, burst: int):
+        self.rate = rate_per_second
+        self.burst = burst
+        self.tokens = float(burst)
+        self.updated_at = time.monotonic()
+
+    def allow(self, *, cost: int = 1) -> bool:
+        now = time.monotonic()
+        self.tokens = min(
+            self.burst,
+            self.tokens + (now - self.updated_at) * self.rate,
+        )
+        self.updated_at = now
+
+        if self.tokens >= cost:
+            self.tokens -= cost
+            return True
+        return False
 ```
 
-## Quick Recap
+Token bucket permits a burst up to the bucket size, then enforces the average rate. That is usually what an API wants: a short spike is fine, a sustained flood is not.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you rate limit across 100 API instances?**
 
-## Further Reading
+Either centralise the counter in a shared store — Redis with an atomic script — which gives an exact global limit at the cost of a network hop on every request, or run a local limiter on each instance with the limit divided by 100, which is fast and approximate but allows the true rate to exceed the limit by up to the number of instances during a burst. Many systems do both: a loose local limit to shed obvious abuse, and a strict central limit for the real quota.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Token bucket for bursty traffic; sliding window for strict fairness.
+- Decide the key before the algorithm: per user, per IP, or per key.
+- Always tell the client what to do — 429 plus `Retry-After`.

@@ -1,34 +1,68 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Group By and Set Operations — SQL module introduction.
+title: GROUP BY and Set Operations
+sidebar_label: GROUP BY and Set Operations
+description: Grouping in depth, and combining result sets.
 tags: [sql, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={6} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Group by several columns and by expressions
+- Use `GROUPING SETS`, `ROLLUP` and `CUBE` for subtotals
+- Combine result sets with `UNION`, `INTERSECT` and `EXCEPT`
+- Know that `UNION` deduplicates and `UNION ALL` does not
 
-## The Concept
+## Why it matters
 
-To be written.
+Reporting often needs subtotals at several levels, and a pivot table of categories is much easier with `ROLLUP` than with a chain of joins.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Sorting and Aggregates](../../basics/sorting-and-aggregates/introduction) — grouping is assumed knowledge here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Grouping Sets | several groupings in one pass | Planned |
+| 02 | ROLLUP and CUBE | subtotals and cross-products of dimensions | Planned |
+| 03 | UNION, INTERSECT, EXCEPT | combining and comparing result sets | Planned |
+| 04 | Set-operation Gotchas | column order, types, and duplicates | Planned |
+
+## A worked example
+
+```sql
+SELECT
+    region,
+    category,
+    SUM(revenue_cents) AS revenue_cents,
+    GROUPING(category) AS category_is_total
+FROM sales
+GROUP BY ROLLUP (region, category)
+ORDER BY region, category_is_total, category;
 ```
 
-## Quick Recap
+`GROUPING()` tells you a value was produced by the rollup rather than by the data — that is how you tell a real category from a subtotal row.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When would you use `UNION ALL` instead of `UNION`?**
 
-## Further Reading
+When you know the two sets are disjoint, or when duplicates are meaningful. `UNION` has to sort or hash both sides to deduplicate, which is a real cost on large inputs. `UNION ALL` just concatenates. It is also the right choice when you are appending event logs that may legitimately repeat.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- `UNION` removes duplicates and sorts; `UNION ALL` does neither.
+- `ROLLUP` gives hierarchical subtotals; `CUBE` gives every combination.
+- Use `GROUPING()` to mark subtotal rows.

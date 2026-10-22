@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Collections — Python module introduction.
+title: Collections
+sidebar_label: Collections
+description: Lists, tuples, dicts and sets — and knowing which one you want.
 tags: [python, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={4} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Pick the right container for a job instead of defaulting to list
+- Use dict and set operations to make code shorter and faster
+- Write comprehensions that read like a sentence
+- Know when a comprehension is costing more than it saves
 
-## The Concept
+## Why it matters
 
-To be written.
+The container you choose determines the complexity of everything you do with it. `item in list` is O(n); `item in set` is O(1). That difference shows up in every loop you write.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Functions](../functions/introduction) — comprehensions are functions in comprehension clothing
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Lists | mutable sequences, slicing, and copying | Planned |
+| 02 | Tuples and Sets | immutable sequences, and set algebra | Planned |
+| 03 | Dictionaries | key/value storage, `.get`, and the `defaultdict` | Planned |
+| 04 | Comprehensions | list, dict and set comprehensions, and generator expressions | Planned |
+
+## A worked example
+
+```python
+words = ["Apple", "apple", "banana", "Banana"]
+
+counts = {}
+for w in words:
+    key = w.lower()
+    counts[key] = counts.get(key, 0) + 1
+# {'apple': 2, 'banana': 2}
+
+unique = {w.lower() for w in words}      # set
+pairs = {w.lower(): len(w) for w in words}  # dict
 ```
 
-## Quick Recap
+Reach for `collections.Counter` before hand-rolling the counting loop — it is faster and clearer.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When is a list faster than a set, and when is a set faster than a list?**
 
-## Further Reading
+For a small number of items, a list can be faster because it has less overhead and better cache locality. Once you are repeatedly testing membership over a large collection, the set wins by a large margin, because lookup drops from O(n) to O(1). The crossover is usually around a dozen elements.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- list: ordered, mutable, duplicates allowed. tuple: ordered, immutable.
+- dict: keyed lookup. set: membership, uniqueness, and set algebra.
+- Prefer comprehensions for building a collection from another.

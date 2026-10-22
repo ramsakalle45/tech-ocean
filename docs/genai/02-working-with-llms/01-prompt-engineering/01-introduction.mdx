@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Prompt Engineering — GenAI module introduction.
+title: Prompt Engineering
+sidebar_label: Prompt Engineering
+description: Getting the behaviour you want from the behaviour you get.
 tags: [genai, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={4} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Structure a prompt with role, context, task and output format
+- Use few-shot examples to pin down a format
+- Control verbosity and scope without over-constraining the model
+- Design prompts that fail predictably and can be tested
 
-## The Concept
+## Why it matters
 
-To be written.
+Prompting is the cheapest lever you have. A well-structured prompt fixes a class of problems that no amount of model tuning would, and it costs nothing to iterate.
 
-## Example
+## Prerequisites
+
+- [What Are LLMs](../../foundations/what-are-llms/introduction) — prompting is a direct consequence of next-token prediction
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Anatomy of a Prompt | role, context, task, format | Planned |
+| 02 | Few-Shot Examples | showing instead of describing | Planned |
+| 03 | Controlling Output | verbosity, scope, tone, and refusals | Planned |
+| 04 | Failure Modes | ambiguity, over-constraint, and prompt drift | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+You are a SQL tutor for a Python developer.
+
+Explain the following query, then give one worked example with
+a two-row table. Keep it under 150 words.
+
+    SELECT customer_id, COUNT(*) AS n
+    FROM orders
+    WHERE placed_at >= now() - interval '30 days'
+    GROUP BY customer_id
+    HAVING COUNT(*) > 3;
 ```
 
-## Quick Recap
+Role, task, input and explicit output shape. The length limit is the part people omit, and it is the part that stops the rambling.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is prompt injection, and how do you defend against it?**
 
-## Further Reading
+It is untrusted content in your context that tries to issue instructions to the model — a web page saying "ignore your previous instructions". Defence is structural: treat retrieved content as data, not as instructions, keep authorisation decisions outside the model, and validate every output against a schema before acting on it. No prompt wording makes it safe on its own.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Role, context, task, format, and a length limit.
+- Examples beat adjectives: two good examples beat a paragraph of description.
+- Never let the model be the only thing enforcing a rule.

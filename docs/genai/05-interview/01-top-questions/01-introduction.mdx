@@ -1,34 +1,75 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Top Questions — GenAI module introduction.
-tags: [genai, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Top Questions
+sidebar_label: Top Questions
+description: The questions interviewers ask about working with LLMs.
+tags: [genai, intermediate]
+difficulty: intermediate
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={17} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain the design choices behind a RAG system you built
+- Answer questions about hallucination, cost and latency with specifics
+- Discuss evaluation and guardrails at a level that sounds like experience
 
-## The Concept
+## Why it matters
 
-To be written.
+These questions test judgement, not trivia. The interviewer wants to hear how you decided, not what you memorised.
 
-## Example
+## Prerequisites
+
+- [Guardrails](../../production/guardrails/introduction) — safety and control are common interview themes
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Fundamentals | how models work, tokens, embeddings, context | Planned |
+| 02 | Building Systems | RAG, tools, agents, and their trade-offs | Planned |
+| 03 | Production | evals, cost, latency, and safety | Planned |
+| 04 | Scenario Questions | design problems and how you would approach them | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Interviewer: "Your RAG system sometimes answers with old pricing.
+            How do you debug it?"
+
+Good answer:
+  "First I would separate retrieval from generation. If the
+   current pricing document is not in the retrieved set, it is an
+   indexing or chunking problem — probably the document is behind
+   a version tag the filter excluded, or its chunk is too large
+   and the embedding drifted. If it is in the set and the answer
+   is still wrong, I would look at the ordering: the pricing
+   document may have been retrieved but ranked below a more
+   semantically similar document. That points at reranking and
+   at recency, not at the prompt.
+
+   I would add both to a regression eval set before changing
+   anything."
 ```
 
-## Quick Recap
+The structure is: separate the stages, check the data, then the prompt. That is a habit, and interviewers are listening for it.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you reduce hallucination?**
 
-## Further Reading
+Give the model a way to refuse, and make it explicit that it should. Ground the answer in retrieved context and require citations, so a wrong claim is visible. Then constrain the output format when you can, since free-form prose has room to drift. Finally, measure it — a groundedness metric on a fixed eval set — so you can tell whether a change helped. None of these eliminates hallucination; they make it rarer and more visible.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Separate retrieval failures from generation failures.
+- Answer with structure: decision, evidence, and what you would do next.
+- Have a real number ready for quality, cost and latency.

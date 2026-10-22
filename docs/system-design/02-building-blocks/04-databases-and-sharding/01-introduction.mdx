@@ -1,34 +1,77 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Databases and Sharding — System Design module introduction.
-tags: [system-design, intermediate]
-difficulty: intermediate
-reading_time: 10
-prerequisites: []
+title: Databases and Sharding
+sidebar_label: Databases and Sharding
+description: Storing data, and splitting it when one machine is not enough.
+tags: [system-design, advanced]
+difficulty: advanced
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={7} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Choose between SQL and NoSQL from the access patterns, not from fashion
+- Normalise or denormalise deliberately
+- Shard by a key and handle the routing that implies
+- Know what replication gives you and what it does not
 
-## The Concept
+## Why it matters
 
-To be written.
+The database is the part of the system that holds the truth, and it is the part with the fewest easy escapes. Choosing a storage model from your access patterns is the decision everything else builds on.
 
-## Example
+## Prerequisites
+
+- [Queues and Async Processing](../queues/introduction) — the write path often ends in a queue before the database
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Choosing a Store | relational, document, key-value, and time series | Planned |
+| 02 | Normalisation and Denormalisation | what each buys you | Planned |
+| 03 | Replication | leader-follower, leaderless, and read consistency | Planned |
+| 04 | Sharding | partition keys, rebalancing, and the queries that stop working | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Sharding by tenant_id (one database per tenant):
+
+  + Simple routing: shard = hash(tenant_id) % N
+  + One tenant's data is on one shard — no cross-shard queries
+  + Easy per-tenant backup, restore and deletion (GDPR)
+  - A huge tenant hot-shards everything
+  - Adding shards needs a resharding of every tenant
+
+Sharding by user_id (one database per hash range):
+
+  + Even load, no big tenants
+  + Resharding is a range split, not a full move
+  - Queries spanning users need fan-out
+  - "All messages for this team" is now a scatter-gather
+
+Neither is universally right. The choice is driven by your
+dominant access pattern — so write that down before sharding.
 ```
 
-## Quick Recap
+Every sharding decision creates queries that will no longer be cheap. Name the query that will hurt before you commit.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When would you use a NoSQL store instead of a relational database?**
 
-## Further Reading
+When the access patterns are known, stable, and simple — a single key lookup, or a range scan over one dimension — and the volume or write rate genuinely exceeds what a well-indexed relational database handles. A document store that holds a whole entity and is always read whole is a good fit. If the data is relational, the queries vary, and you need transactions across rows, relational is still the better answer, whatever the throughput number says.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Choose the store from access patterns, not from trends.
+- Replication gives you availability and read scale; it does not remove the write bottleneck.
+- Name the query that will hurt before you shard.

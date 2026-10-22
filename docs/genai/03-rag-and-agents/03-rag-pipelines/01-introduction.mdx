@@ -1,34 +1,81 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Rag Pipelines — GenAI module introduction.
+title: RAG Pipelines
+sidebar_label: RAG Pipelines
+description: Retrieval augmented generation, end to end.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={10} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Assemble a retrieve-then-generate pipeline with citations
+- Use query rewriting and multi-query expansion to improve recall
+- Rerank retrieved candidates before they reach the model
+- Design an evaluation set for a RAG system
 
-## The Concept
+## Why it matters
 
-To be written.
+RAG is the standard way to give a model knowledge it does not have and to make its answers checkable. The pipeline has more failure modes than it has parts, and each one needs its own measurement.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Vector Databases](../vector-databases/introduction) — retrieval is the first stage of the pipeline
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Basic Pipeline | retrieve, assemble a prompt, generate, cite | Planned |
+| 02 | Improving Recall | query rewriting, expansion, and hybrid search | Planned |
+| 03 | Reranking | a second, sharper pass over the candidates | Planned |
+| 04 | Evaluating RAG | retrieval metrics and groundedness, separately | Planned |
+
+## A worked example
+
+```python
+def answer(question: str, *, k: int = 8, top: int = 3) -> Answer:
+    queries = [question, *rewrite(question)]
+
+    candidates: dict[str, Chunk] = {}
+    for q in queries:
+        for chunk in vector_search(q, limit=k):
+            candidates[chunk.id] = chunk      # dedupe across queries
+
+    ranked = rerank(question, list(candidates.values()))[:top]
+
+    context = "\n\n".join(
+        f"[{i+1}] {c.text}\n(source: {c.source})"
+        for i, c in enumerate(ranked)
+    )
+
+    result = generate(
+        system="Answer using only the numbered sources. "
+               "Cite the numbers you used. If the answer is not there, say so.",
+        user=f"Question: {question}\n\nSources:\n{context}",
+    )
+    return Answer(text=result.text, citations=[c.source for c in ranked])
 ```
 
-## Quick Recap
+The citation instruction plus the numbered context is what makes an answer checkable. Reranking a wider candidate set into a narrow one is usually the biggest quality win.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your RAG system returns irrelevant documents. How do you debug it?**
 
-## Further Reading
+Split the problem in two. First measure retrieval: is the correct document in the retrieved set at all? If not, it is a chunking or embedding problem. If it is there but the answer is wrong, it is a generation problem — the context is fine but the model ignored or was confused by it. Measure both separately, because the fixes are completely different.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Measure retrieval quality and generation quality separately.
+- Retrieve wide, rerank narrow.
+- Always ask for citations, and always give the model a way to say "not found".

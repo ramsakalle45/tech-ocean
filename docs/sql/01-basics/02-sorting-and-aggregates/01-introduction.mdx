@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Sorting and Aggregates — SQL module introduction.
+title: Sorting and Aggregates
+sidebar_label: Sorting and Aggregates
+description: Grouping rows, counting them, and putting the result in order.
 tags: [sql, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 35
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={2} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Aggregate with `COUNT`, `SUM`, `AVG`, `MIN` and `MAX`, and know what each ignores
+- Group by one or several columns and explain the resulting row count
+- Filter on an aggregate with `HAVING`, and know why `WHERE` cannot do it
+- Sort with `NULLS FIRST` / `NULLS LAST` and by multiple keys
 
-## The Concept
+## Why it matters
 
-To be written.
+Reporting questions — "how many orders per customer last month" — are the bulk of day-to-day SQL work, and they are exactly where `WHERE` versus `HAVING` trips people up.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Select and Filtering](../select-and-filtering/introduction) — aggregation builds directly on filtering
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Aggregate Functions | COUNT variants, SUM, AVG, and what they skip | Planned |
+| 02 | GROUP BY | grouping, the output grain, and common mistakes | Planned |
+| 03 | HAVING | filtering groups, and why it runs after aggregation | Planned |
+| 04 | ORDER BY in Depth | multiple keys, null placement, and stability | Planned |
+
+## A worked example
+
+```sql
+SELECT
+    customer_id,
+    COUNT(*)                          AS order_count,
+    SUM(total_cents)                  AS revenue_cents,
+    AVG(total_cents)                  AS avg_order_cents
+FROM orders
+WHERE placed_at >= DATE '2026-01-01'
+GROUP BY customer_id
+HAVING COUNT(*) > 3
+ORDER BY revenue_cents DESC
+NULLS LAST;
 ```
 
-## Quick Recap
+`COUNT(*)` counts rows. `COUNT(column)` counts rows where that column is not null — a difference that quietly changes totals.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is the "grain" of a query result?**
 
-## Further Reading
+The grain is what one row of the output represents. After `GROUP BY customer_id`, one row represents one customer. Every selected column must be valid at that grain — which is why you cannot select a raw `order_id` alongside a `GROUP BY customer_id` without aggregating it.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Know the grain of your result before adding columns.
+- `WHERE` filters rows before grouping; `HAVING` filters after.
+- `COUNT(*)` counts rows, `COUNT(col)` counts non-null values.

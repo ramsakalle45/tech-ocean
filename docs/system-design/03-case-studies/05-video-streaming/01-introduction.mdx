@@ -1,34 +1,76 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Video Streaming — System Design module introduction.
+title: Video Streaming
+sidebar_label: Video Streaming
+description: Delivering video to millions without delivering it from origin.
 tags: [system-design, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={13} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain how on-demand and live video differ in their delivery requirements
+- Describe the transcoding pipeline and why multiple renditions exist
+- Use a CDN for video, and reason about the cost of that choice
+- Design the playback protocol and handle seeking
 
-## The Concept
+## Why it matters
 
-To be written.
+Video is the clearest case in system design of a workload where the read path dwarfs everything else, and where the cost model is bytes, not requests.
 
-## Example
+## Prerequisites
+
+- [CDN and API Design](../../building-blocks/cdn-and-api-design/introduction) — the CDN is the product here, not an optimisation
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | On-Demand and Live | pre-encoded versus real-time, and the different pipelines | Planned |
+| 02 | Transcoding | renditions, ladders, and the cost of generating them | Planned |
+| 03 | Delivery | CDN, range requests, and cache hit ratio | Planned |
+| 04 | Playback | manifests, streaming protocols, and seeking | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+On-demand pipeline (hours to days):
+  upload → probe → transcode to a ladder → package → store → CDN
+  1080p, 720p, 480p, 360p — each a separate file
+
+Live pipeline (seconds):
+  ingest → transcode in real time → package → CDN → purge old segments
+  latency budget: glass-to-glass under ~5s means aggressive
+  packaging, small segment length, and edge-side caching
+
+Cost reality:
+  1M viewers × 2 Mbps × 2 hours = 1.8 TB of egress
+  A transcoding pipeline is cheaper than a network bill,
+  so the ladder is the main lever, not the CDN.
+
+Why a ladder: a phone on 3G should get 360p, not a 1080p
+  file it cannot finish downloading.
 ```
 
-## Quick Recap
+Adaptive bitrate is the reason the system works. The ladder is what makes one video serve a stadium and a phone.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why store multiple resolutions instead of one and letting the client scale it?**
 
-## Further Reading
+Because the client cannot scale it, and because the bitrate is the problem. A 1080p file on a weak connection stalls constantly, because the bits arrive too slowly. Each rendition is encoded at its own bitrate, and the player picks based on measured throughput and switches between renditions as conditions change. The cost is transcoding time and storage; the benefit is that playback actually works.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- On-demand is a batch pipeline; live is a real-time one.
+- The bitrate ladder is what makes playback work on slow connections.
+- Video cost is dominated by egress — cache hit ratio is the lever.

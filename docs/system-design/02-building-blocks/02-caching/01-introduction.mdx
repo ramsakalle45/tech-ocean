@@ -1,34 +1,87 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Caching — System Design module introduction.
+title: Caching
+sidebar_label: Caching
+description: Answering from memory instead of from scratch.
 tags: [system-design, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={5} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Choose a cache and decide what the key should be
+- Apply an eviction policy and size the cache for your hit rate
+- Handle invalidation, including the patterns that do not work
+- Measure hit rate and understand where the latency went
 
-## The Concept
+## Why it matters
 
-To be written.
+Caching is the highest-leverage latency fix available, and also the most common source of "why is this stale?" bugs. A cache is a distributed truth with a time limit.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Load Balancing](../load-balancing/introduction) — a cache is another tier behind the balancer
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Where to Cache | browser, CDN, edge, application, and database layers | Planned |
+| 02 | Keys and Eviction | LRU, LFU, TTL, and sizing for the hit rate | Planned |
+| 03 | Invalidation | write-through, write-behind, TTL, and the hard cases | Planned |
+| 04 | Measuring a Cache | hit rate, and the cost of a miss | Planned |
+
+## A worked example
+
+```python
+class TTLCache:
+    """A small in-process cache. The policy is the interesting part."""
+
+    def __init__(self, *, max_size: int = 1000, ttl_seconds: float = 60.0):
+        self._data: dict[str, tuple[float, object]] = {}
+        self._max_size = max_size
+        self._ttl = ttl_seconds
+        self.hits = 0
+        self.misses = 0
+
+    def get(self, key: str):
+        entry = self._data.get(key)
+        if entry is None:
+            self.misses += 1
+            return None
+        expires_at, value = entry
+        if expires_at < time.monotonic():
+            del self._data[key]
+            self.misses += 1
+            return None
+        self.hits += 1
+        return value
+
+    @property
+    def hit_rate(self) -> float:
+        total = self.hits + self.misses
+        return self.hits / total if total else 0.0
 ```
 
-## Quick Recap
+Instrument the hit rate from day one. A cache without a hit-rate metric is a cache you cannot tune.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your cache hit rate is 20%. What is wrong?**
 
-## Further Reading
+Usually the key. If the cache key includes something that changes per request — a user id, a session, a timestamp — every request is a new key and nothing is ever reused. Grouping by the true unit of reuse is the usual fix. The other common cause is a TTL shorter than the update cycle, so entries expire before they are hit again. Measure the hit rate per key pattern rather than in aggregate.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- The key defines the hit rate. Get it right first.
+- Set a TTL as a safety net even when you have explicit invalidation.
+- Measure hit rate per key pattern, not just in aggregate.

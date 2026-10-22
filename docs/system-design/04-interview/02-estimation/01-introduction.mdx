@@ -1,34 +1,78 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Estimation — System Design module introduction.
-tags: [system-design, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Estimation
+sidebar_label: Estimation
+description: The arithmetic under a design, done quickly and honestly.
+tags: [system-design, intermediate]
+difficulty: intermediate
+reading_time: 35
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={16} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Estimate storage, bandwidth and request rates from first principles
+- Use powers of two and orders of magnitude instead of false precision
+- Know which estimates the design actually depends on
+- State assumptions and let them be corrected
 
-## The Concept
+## Why it matters
 
-To be written.
+Estimation is not a test of arithmetic. It is a test of whether you can work out what matters, and it is the fastest way to look competent in the first five minutes of an interview.
 
-## Example
+## Prerequisites
+
+- [The Framework](../framework/introduction) — the numbers come at step two of the framework
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Powers of Two | the handful of numbers worth memorising | Planned |
+| 02 | Storage Estimation | per-record size times volume | Planned |
+| 03 | Bandwidth and QPS | requests, bytes, and where the bottleneck is | Planned |
+| 04 | Doing It in the Room | saying your assumptions as you go | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Numbers worth having in your head:
+  1 KB = 10^3 bytes        1 GB = 10^9 bytes
+  1 MB = 10^6 bytes        1 TB = 10^12 bytes
+  1 day  = 86,400 s        1 year ≈ 3.15 × 10^7 s
+  1 user ≈ 10 requests/day (rough social-app default)
+
+Worked example — a URL shortener:
+  100M users × 10 URLs each per year = 10^9 URLs/year
+  each row ≈ 100 bytes (key, url, user, timestamps)
+  → 10^9 × 100 B ≈ 100 GB/year  ≈ 1 TB after 10 years
+
+  Read path: if 20% of users visit daily and each visit
+  resolves 5 short links:
+  100M × 0.2 × 5 = 100M redirects/day ≈ 1,200 QPS average
+  peak maybe 3–5× that → design for ~5,000 QPS
+
+Say this out loud: "about a terabyte a decade for
+ storage, and a few thousand requests per second at peak."
 ```
 
-## Quick Recap
+Order-of-magnitude answers are correct answers. A number with three significant figures is usually a sign you are faking precision.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How many requests per second do you need to design for?**
 
-## Further Reading
+From daily active users, requests per user per day, and the concentration of traffic into the peak hours. If a hundred million users each make ten requests a day, that is a billion requests a day, which is around 11,600 per second on average. Peak is typically three to five times the average, so I would design for roughly 50,000 requests per second — and I would check the traffic distribution, because a system with a strong daily cycle is very different from one that is flat.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Memorise the powers of two, not the formulas.
+- Design for peak, and say your peak assumption.
+- Round aggressively and be explicit that you are rounding.

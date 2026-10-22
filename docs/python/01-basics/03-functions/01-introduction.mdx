@@ -1,34 +1,67 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Functions — Python module introduction.
+title: Functions
+sidebar_label: Functions
+description: Packaging behaviour so it can be named, tested and reused.
 tags: [python, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={3} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write a function with a clear contract: what it takes, what it returns, what it raises
+- Choose between positional, keyword, default and keyword-only arguments deliberately
+- Explain closures without hand-waving, and know when a lambda is the wrong tool
+- Decide what belongs in a return value and what belongs in a side effect
 
-## The Concept
+## Why it matters
 
-To be written.
+Functions are the smallest unit of a program you can test on its own. A program that is one long script cannot be unit tested, reused, or reasoned about.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Control Flow](../control-flow/introduction) — functions are where control flow starts to pay for itself
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Defining and Calling | def, return, docstrings, and type hints | Planned |
+| 02 | Arguments and Scope | positional vs keyword, *args, **kwargs, LEGB | Planned |
+| 03 | Defaults and Keyword-Only | mutable defaults, and arguments that must be named | Planned |
+| 04 | First-Class Functions | functions as values, lambdas, and when not to use them | Planned |
+
+## A worked example
+
+```python
+def normalise(name: str, *, upper: bool = False) -> str:
+    """Return the display form of a name."""
+    name = name.strip()
+    return name.upper() if upper else name.title()
+
+normalise("  ada lovelace ")           # 'Ada Lovelace'
+normalise("ada lovelace", upper=True)  # 'ADA LOVELACE'
 ```
 
-## Quick Recap
+The `*` makes `upper` keyword-only. It reads well and it stops a positional call from silently meaning something else.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why is a mutable default argument a classic Python bug?**
 
-## Further Reading
+The default is evaluated once, when the `def` runs, not on each call. `def f(items=[])` creates one list that is shared by every call that omits `items`, and it survives between calls. Use `None` as the sentinel and build the real default inside the function.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A function should do one thing and say so in its name.
+- Return values, not prints — printing makes a function impossible to compose or test.
+- Never use a mutable default. Use `None` and construct inside.

@@ -1,34 +1,74 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Query Challenges — SQL module introduction.
+title: Query Challenges
+sidebar_label: Query Challenges
+description: A long set of small questions, to build fluency.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 80
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={13} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Translate a business question into a query without hesitating
+- Write a query in one pass, then check its corner cases
+- Recognise which SQL feature each question is testing
 
-## The Concept
+## Why it matters
 
-To be written.
+Fluency comes from volume. Each of these is small enough to do in five minutes, and together they cover the syntax you reach for most.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Classic Problems](../classic-problems/introduction) — the patterns from the previous module apply here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Filtering and Aggregation | 15 short questions on WHERE, GROUP BY and HAVING | Planned |
+| 02 | Joins and Subqueries | 15 questions on combining tables | Planned |
+| 03 | Windows and Reporting | 10 questions on analytical reporting | Planned |
+| 04 | Performance and Edge Cases | 10 questions where the naive answer is wrong | Planned |
+
+## A worked example
+
+```sql
+-- Challenge: "customers who have ordered in every month of 2025".
+-- The trap: writing this as a plain join and counting rows.
+WITH months AS (
+    SELECT generate_series(1, 12) AS month
+),
+buyers AS (
+    SELECT DISTINCT customer_id, EXTRACT(MONTH FROM placed_at)::int AS month
+    FROM orders
+    WHERE placed_at >= DATE '2025-01-01'
+      AND placed_at <  DATE '2026-01-01'
+)
+SELECT o.customer_id
+FROM orders AS o
+GROUP BY o.customer_id
+HAVING COUNT(DISTINCT EXTRACT(MONTH FROM o.placed_at)) = 12;
 ```
 
-## Quick Recap
+The naive version counts order rows, not distinct months. Counting distinct values is almost always the right move in a "in every period" question.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is the most common mistake in a "count of distinct X per group" question?**
 
-## Further Reading
+Counting rows instead of distinct values, because a group can contain several rows for the same X. `COUNT(*)` and `COUNT(DISTINCT x)` differ exactly when there are duplicates — and the question usually means the latter.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Read the question twice: what is one row of the answer?
+- Watch for the difference between counting rows and counting distinct values.
+- Check the empty and single-row cases.

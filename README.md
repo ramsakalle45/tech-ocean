@@ -45,11 +45,12 @@ request.
 docs/                 all learning content
   <subject>/<level>/<module>/<topic>.mdx
 src/
-  components/         Quiz, Callout, DropCap, ChapterHeader, ...
-  css/book-theme.css  the old-book look
-  pages/index.tsx     landing page
-  utils/progress.ts   localStorage helpers
-static/               images, fonts, favicon
+  components/         Callout, DropCap, ChapterHeader, Figure, DraftNotice
+  css/theme/          tokens · typography · page · components · responsive · motion
+  pages/index.tsx     the book cover
+  theme/Root.tsx      page turn, and the navigation fade
+  utils/roman.ts      Roman numerals for chapter numbers
+static/               favicon, social card
 examples/             runnable code mirroring docs/
 templates/            copy these to start new content
 scripts/              scaffolding and validation
@@ -58,6 +59,20 @@ scripts/              scaffolding and validation
 Ordering is controlled by two-digit prefixes (`01-`, `02-`). Docusaurus strips
 those prefixes from URLs, so `docs/python/01-basics/01-syntax-and-variables/`
 is served at `/docs/python/basics/syntax-and-variables/`.
+
+## Status
+
+| Area | State |
+|---|---|
+| Structure | 4 subjects · 18 levels · 65 modules scaffolded |
+| Module pages | 65 written — each with learning outcomes, prerequisites, a topic roadmap, a worked example and an interview question |
+| Topics | Not yet written; every module page lists the topics it will contain |
+| Quizzes | Not yet built — the assessment engine is the next phase |
+| Theme | Book layout, four responsive tiers, dark mode, page-turn motion — done |
+| Search | Local search, 71 pages indexed — done |
+
+Pages marked *Draft* are deliberate: the roadmap stays honest, and each one is
+a claim on a topic somebody can write.
 
 ## Contributing
 

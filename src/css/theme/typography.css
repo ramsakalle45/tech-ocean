@@ -48,7 +48,7 @@ body {
 }
 
 .theme-doc-markdown h1 {
-  font-size: var(--step-4);
+  font-size: var(--step-3);
   text-align: center;
   margin-top: 0.4em;
   padding-bottom: 0.55em;

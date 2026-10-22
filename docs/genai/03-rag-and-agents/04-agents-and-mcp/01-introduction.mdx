@@ -1,34 +1,79 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Agents and Mcp — GenAI module introduction.
+title: Agents and MCP
+sidebar_label: Agents and MCP
+description: When a model drives the process, and how to keep it in bounds.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={11} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Describe the agent loop: plan, act, observe, repeat
+- Decide when an agent is the right tool and when a fixed pipeline is better
+- Explain the Model Context Protocol and the problem it solves
+- Bound an agent with limits, timeouts and a clear stop condition
 
-## The Concept
+## Why it matters
 
-To be written.
+Agents trade predictability for flexibility. That trade is worth it for some tasks and ruinous for others, and the difference is usually about how much the task can vary.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Function Calling](../../working-with-llms/function-calling/introduction) — an agent is a tool loop with a decision at the top
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Agent Loop | plan, act, observe, and the stopping condition | Planned |
+| 02 | When to Agentise | variable tasks versus known sequences | Planned |
+| 03 | MCP | a standard interface between models and tools | Planned |
+| 04 | Bounding an Agent | step limits, budgets, timeouts, and permissions | Planned |
+
+## A worked example
+
+```python
+def run_agent(task: str, *, max_steps: int = 12, deadline: float = 120.0) -> Result:
+    started = time.monotonic()
+    messages = [{"role": "user", "content": task}]
+
+    for step in range(max_steps):
+        if time.monotonic() - started > deadline:
+            return Result(status="timeout", steps=step)
+
+        calls = llm(messages, tools=TOOLS)          # may request tool calls
+        messages += calls.messages
+
+        if not calls.tool_calls:
+            return Result(status="done", output=calls.text, steps=step + 1)
+
+        for call in calls.tool_calls:
+            result = run_tool(call)                   # authorised, validated, logged
+            messages.append(tool_message(call, result))
+
+    return Result(status="max_steps", steps=max_steps)
 ```
 
-## Quick Recap
+The limits are the point. An unbounded agent loop is an unbounded bill, and a request that is not authorised is a request that should never have been made.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When is a plain pipeline better than an agent?**
 
-## Further Reading
+When the steps are known and the order matters. A fixed pipeline is cheaper, faster, reproducible and easy to test. Agents pay off when the sequence of steps genuinely varies with the input — when the model has to decide what to look up, in what order, and when it is done. If you can draw the flowchart, write the flowchart.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- An agent is a loop with a decision at the top and a hard stop at the bottom.
+- Use a fixed pipeline whenever the steps are knowable in advance.
+- Bound every agent: step limit, time limit, spend limit, and permissions.

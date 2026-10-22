@@ -1,34 +1,84 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Llm Apis — GenAI module introduction.
+title: LLM APIs
+sidebar_label: LLM APIs
+description: Calling a model from code, without the footguns.
 tags: [genai, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={5} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Call a chat completion API and handle its options correctly
+- Control cost with a model tier and a token budget
+- Implement retries, timeouts and rate-limit handling
+- Stream a response and handle the interruption cases
 
-## The Concept
+## Why it matters
 
-To be written.
+The API surface is simple. The engineering around it — retries, budgets, streaming, structured error handling — is where production quality is won or lost.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Prompt Engineering](../prompt-engineering/introduction) — you need a prompt before you need an API
+- [Tokens and Embeddings](../../foundations/tokens-and-embeddings/introduction) — tokens are how the API bills you
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Request Shape | messages, roles, model, and parameters | Planned |
+| 02 | Parameters that Matter | temperature, top-p, max tokens, stop sequences | Planned |
+| 03 | Reliability | retries with backoff, timeouts, and idempotency | Planned |
+| 04 | Streaming | server-sent events, partial output, and cancellation | Planned |
+
+## A worked example
+
+```python
+import time
+import random
+from openai import OpenAI, APIError, RateLimitError
+
+client = OpenAI()
+
+def ask(prompt: str, *, model: str = "gpt-4o-mini", attempts: int = 4) -> str:
+    for attempt in range(attempts):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500,
+                temperature=0.2,
+            )
+            return response.choices[0].message.content or ""
+        except RateLimitError:
+            time.sleep((2 ** attempt) + random.random())
+        except APIError as exc:
+            if attempt == attempts - 1:
+                raise
+            time.sleep(1)
+    raise RuntimeError("unreachable")
 ```
 
-## Quick Recap
+Exponential backoff with jitter, and a hard cap on attempts. The jitter matters — without it, every client retries at the same instant.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you keep a chat feature from costing more than it earns?**
 
-## Further Reading
+Three levers. Use the smallest model that passes your evaluation. Cap output tokens, since output is usually more expensive per token than input. And cache aggressively — for repeated or near-identical prompts, a semantic cache over embeddings often removes a large fraction of calls. Add a per-user budget so one client cannot exhaust the account.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Set `max_tokens` on every call. Unbounded output is unbounded cost.
+- Retry with exponential backoff and jitter; make retries idempotent.
+- Model choice, output length and caching are the three cost levers.

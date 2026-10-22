@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Vector Databases — GenAI module introduction.
-tags: [genai, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Vector Databases
+sidebar_label: Vector Databases
+description: Storing embeddings and finding the nearest ones quickly.
+tags: [genai, intermediate]
+difficulty: intermediate
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={9} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain approximate nearest-neighbour search and why it trades accuracy for speed
+- Choose between a vector index, a relational extension, and plain brute force
+- Filter by metadata without losing the vector ranking
+- Decide when you do not need a vector database at all
 
-## The Concept
+## Why it matters
 
-To be written.
+Vector search is the retrieval half of RAG. But it is also the half people over-engineer: for a corpus of a few thousand documents, a brute-force search in your existing database is simpler and often faster.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Chunking and Embeddings](../chunking-and-embeddings/introduction) — you are searching the chunks you just built
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Nearest-Neighbour Search | exact versus approximate, and the recall/speed trade-off | Planned |
+| 02 | Index Types | HNSW, IVF, and when each wins | Planned |
+| 03 | Filtered Search | pre-filtering versus post-filtering | Planned |
+| 04 | Storage Choices | dedicated vector stores, extensions, and plain tables | Planned |
+
+## A worked example
+
+```python
+def search(vectors, query, docs, *, k=5, bucket=None):
+    """Brute force is fine below ~100k vectors, and much easier to reason about."""
+    scored = []
+    for doc, vector in zip(docs, vectors):
+        if bucket and doc.metadata.get("tenant") != bucket:
+            continue
+        scored.append((cosine(query, vector), doc))
+
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return [(round(score, 4), doc.text[:120]) for score, doc in scored[:k]]
 ```
 
-## Quick Recap
+Measure before reaching for a dedicated vector database. A `pgvector` column with an index, or a brute-force scan, is often the right answer for a first version.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When would you not use a vector database?**
 
-## Further Reading
+When the corpus is small enough to scan, when your data is in a relational database and you need transactional consistency with it, or when your search is mostly exact-match or keyword rather than semantic. In those cases a `pgvector` extension or a plain table plus a full-text index is simpler to operate and often faster.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- ANN trades a little recall for a lot of speed.
+- Filter before you rank, or the filter has to be applied to every candidate.
+- Do not add a vector database before you have measured the need.

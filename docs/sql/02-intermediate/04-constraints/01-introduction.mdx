@@ -1,34 +1,68 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Constraints — SQL module introduction.
+title: Constraints
+sidebar_label: Constraints
+description: Rules the database enforces so bad data never gets in.
 tags: [sql, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={7} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Use primary keys, foreign keys, unique, check and not-null constraints together
+- Explain why constraints belong in the database and not only in the application
+- Add a constraint to an existing table without downtime
+- Diagnose a constraint violation and read its error
 
-## The Concept
+## Why it matters
 
-To be written.
+Application checks are advisory — two services, two code paths, one bad write. A constraint is the one place the rule is guaranteed to hold.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [DDL and DML](../../basics/ddl-and-dml/introduction) — constraints are part of the table definition
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Keys and Uniqueness | primary keys, surrogate keys, and natural keys | Planned |
+| 02 | Referential Integrity | foreign keys, cascades, and delete policies | Planned |
+| 03 | Check and Not-Null | domain rules the database can enforce | Planned |
+| 04 | Adding Constraints Safely | validating existing data, and `NOT VALID` | Planned |
+
+## A worked example
+
+```sql
+ALTER TABLE orders
+    ADD CONSTRAINT orders_customer_fk
+    FOREIGN KEY (customer_id) REFERENCES customers (id)
+    ON DELETE RESTRICT;
+
+ALTER TABLE orders
+    ADD CONSTRAINT orders_total_nonneg
+    CHECK (total_cents >= 0) NOT VALID;   -- enforce for new rows only
 ```
 
-## Quick Recap
+`NOT VALID` skips the check on existing rows, which is how you add a constraint to a large table without a long lock. Validate later with `VALIDATE CONSTRAINT`.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Should validation live in the application or the database?**
 
-## Further Reading
+Both, for different reasons. The database constraint is the guarantee — it holds no matter which client writes. The application check gives a good error message and a friendly form validation. The database is the source of truth for correctness; the application is the source of truth for usability.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Constraints protect the data even when the application is wrong.
+- Use a surrogate key unless a natural key is genuinely stable.
+- Add constraints to big tables with `NOT VALID`, then validate.

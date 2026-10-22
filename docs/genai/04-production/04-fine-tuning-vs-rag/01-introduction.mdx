@@ -1,34 +1,73 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Fine Tuning vs Rag — GenAI module introduction.
+title: Fine-Tuning vs RAG
+sidebar_label: Fine-Tuning vs RAG
+description: Two ways to change what a model does, and when each is right.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={15} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Distinguish tuning for behaviour from retrieval for knowledge
+- Decide which approach fits your problem, with reasons
+- Understand the operational cost of each
+- Plan a change with the fewest irreversible steps
 
-## The Concept
+## Why it matters
 
-To be written.
+This is the question that comes up most often in design review, and the answer is usually not "the newer technique". Choosing wrong means either paying for stale knowledge or fighting a model that will not behave.
 
-## Example
+## Prerequisites
+
+- [RAG Pipelines](../../rag-and-agents/rag-pipelines/introduction) — RAG is the comparison baseline
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | What Tuning Changes | style, format, and task-specific behaviour | Planned |
+| 02 | What Retrieval Changes | the facts available at inference time | Planned |
+| 03 | Deciding | a short decision procedure | Planned |
+| 04 | Operational Cost | data, evaluation, versioning, and rollback | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Question: "Summarise this support ticket in our house style."
+  -> Tuning helps: the style is behaviour, and the input is given.
+
+Question: "What is our refund policy for annual contracts?"
+  -> Retrieval helps: the policy is knowledge, it changes, and it
+     must be citable and current.
+
+Question: "Classify this ticket into one of 40 categories, every time."
+  -> Tuning helps if the categories are stable and the volume is high;
+     retrieval does not apply at all.
+
+Question: "Answer questions about our 200-page handbook, with citations."
+  -> Retrieval, almost certainly.
 ```
 
-## Quick Recap
+The dividing line is simple: is the thing you are changing a fact, or a behaviour?
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A team wants to fine-tune so their model knows their product. What would you ask?**
 
-## Further Reading
+What exactly is missing? If it is factual knowledge that changes weekly, tuning is the wrong tool — you would be baking a snapshot into weights that goes stale and cannot be cited or withdrawn. Retrieval gives fresh, citable, permission-controlled knowledge. Tuning is for behaviour: output format, tone, classification, and following a process you can demonstrate with examples.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Facts that change → retrieval. Behaviour that must be consistent → tuning.
+- Start with prompting, then retrieval, then tuning.
+- Tuning is the most expensive and hardest to reverse of the three.

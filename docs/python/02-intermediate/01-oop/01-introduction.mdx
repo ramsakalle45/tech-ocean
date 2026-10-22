@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Oop — Python module introduction.
+title: OOP
+sidebar_label: OOP
+description: Classes, protocols, and when an object is the right shape.
 tags: [python, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={5} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Model a domain with classes that hide their internals behind a small interface
+- Use `__init__`, `__repr__`, `__eq__` and the other dunder methods purposefully
+- Tell a dataclass from a plain class, and know when composition beats inheritance
+- Write a class that is easy to substitute in a test
 
-## The Concept
+## Why it matters
 
-To be written.
+Classes are not about reusing code — inheritance is often the wrong tool for that. They are about giving a set of data a name and a set of rules, so the rest of the program can depend on the name instead of the shape.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Functions](../../basics/functions/introduction) — a method is a function with an implicit first argument
+- [Collections](../../basics/collections/introduction) — objects are usually thin wrappers over a dict or a list
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Classes and Objects | instances, attributes, and the class as a factory | Planned |
+| 02 | Dunder Methods | how Python makes your objects behave like built-ins | Planned |
+| 03 | Properties and Validation | attributes that check themselves | Planned |
+| 04 | Dataclasses and Composition | less boilerplate, and favouring "has a" over "is a" | Planned |
+
+## A worked example
+
+```python
+from dataclasses import dataclass
+
+@dataclass(frozen=True, slots=True)
+class Money:
+    amount: int      # minor units, to dodge float rounding
+    currency: str = "GBP"
+
+    def __post_init__(self) -> None:
+        if self.currency not in {"GBP", "EUR", "USD"}:
+            raise ValueError(f"unsupported currency: {self.currency}")
 ```
 
-## Quick Recap
+`frozen=True` makes it immutable and hashable; `slots=True` cuts the memory cost per instance. Both are good defaults for a value type.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When would you choose composition over inheritance?**
 
-## Further Reading
+Almost always, when the relationship is "has a" rather than "is a". Inheritance couples you to the base class permanently; composition lets you swap the part. Reserve inheritance for cases where you genuinely want substitutability — a type hierarchy you control, where every subclass really is a kind of the parent.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A class gives data a name and a set of rules.
+- `__repr__` and `__eq__` are what make a class debuggable and testable.
+- Prefer composition; use inheritance only for substitutability.

@@ -1,34 +1,87 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Mock Designs — System Design module introduction.
+title: Mock Designs
+sidebar_label: Mock Designs
+description: Full-length design rounds, worked end to end.
 tags: [system-design, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 100
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={17} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Run a 45-minute design for an unfamiliar system
+- Deep dive on two components without rambling
+- Handle an interruption or a change of requirements mid-design
+- Review your own design against the framework
 
-## The Concept
+## Why it matters
 
-To be written.
+Reading about design is not the same as doing it. These rounds are timed, and the review at the end is where most of the learning happens.
 
-## Example
+## Prerequisites
+
+- [Estimation](../estimation/introduction) — the arithmetic is the last piece before the mock rounds
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Round One | news aggregator, and a file-sharing service | Planned |
+| 02 | Round Two | ride-hailing matching, and a rate-limited API | Planned |
+| 03 | Round Three | a question with a deliberate twist | Planned |
+| 04 | Reviews | what you would change, and how to sound more senior | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Mock round — "Design a job scheduler" (45 minutes)
+
+  0–5    Requirements
+         "How many jobs, how large, how long do they run, and
+          who submits them — users directly, or other services?"
+
+  5–10   Scale
+         10M jobs/day, average 30s runtime, 100 peak submissions/s
+         → ~10M × 30s = 300M job-seconds per day
+
+  10–20  High-level design
+         API → scheduler service → priority queue → worker pool
+         → status store (result), plus a results topic
+         Workers pull, lease the job, run it, write the result.
+         Lease has a TTL so a dead worker’s job is retried.
+
+  20–35  Deep dive
+         The queue and the lease protocol.
+         - FIFO breaks under one slow job → priority + fair dispatch
+         - Exactly-once is not achievable → idempotent job keys
+         - A worker dies mid-job → lease expiry, then retry
+         - Rate limits per tenant → token bucket per tenant
+
+  35–45  Wrap up
+         Monitoring: queue depth, job latency, retry rate, stuck leases.
+         What I would do with more time: a priority class system,
+         and a dead-letter queue with a replay tool.
 ```
 
-## Quick Recap
+Note what the deep dive contains: the protocol and its failure modes, not a list of technologies. That is the difference between a senior and a junior answer.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What does a strong deep dive sound like?**
 
-## Further Reading
+It picks one component and takes it seriously: the data model, the protocol between two services, the failure mode and the recovery. It states a trade-off — "at-least-once delivery, because exactly-once is not achievable across the queue and the database, so the job must be idempotent" — and it names what would break under load. Listing technologies is not a deep dive.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Pick two components and take them seriously.
+- Name the trade-off, then name the failure mode.
+- Finish with what you would improve given more time.

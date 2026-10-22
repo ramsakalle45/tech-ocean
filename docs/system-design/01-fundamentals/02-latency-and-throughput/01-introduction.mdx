@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Latency and Throughput — System Design module introduction.
+title: Latency and Throughput
+sidebar_label: Latency and Throughput
+description: The numbers a system is judged by, and how they trade off.
 tags: [system-design, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={2} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Distinguish latency from throughput and describe a case where improving one hurts the other
+- Break an end-to-end latency budget into its parts
+- Use percentiles instead of averages when judging performance
+- Explain how concurrency, batching and queueing affect both
 
-## The Concept
+## Why it matters
 
-To be written.
+Two numbers decide whether a system feels good. Averages hide the users having a bad time, and a latency budget is the practical tool for knowing where to spend effort.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Scalability](../scalability/introduction) — the capacity numbers come from here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Latency and Throughput | the definitions, and why they conflict | Planned |
+| 02 | Percentiles | p50, p95, p99, and tail latency | Planned |
+| 03 | Latency Budgets | splitting a target across the call path | Planned |
+| 04 | Queues and Batching | trading latency for throughput | Planned |
+
+## A worked example
+
+```python
+def percentile(samples: list[float], p: float) -> float:
+    """p in 0..1. p99 is the number that matters to your users."""
+    ordered = sorted(samples)
+    index = min(len(ordered) - 1, int(round(p * (len(ordered) - 1))))
+    return ordered[index]
+
+# Averages lie: 99 requests at 10ms, 1 at 2,000ms
+samples = [10.0] * 99 + [2000.0]
+print(f"avg  {sum(samples)/len(samples):.0f}ms")          # ~30ms — looks fine
+print(f"p99  {percentile(samples, 0.99):.0f}ms")          # 2000ms — the truth
 ```
 
-## Quick Recap
+The average is 30ms and the 99th percentile is two seconds. That gap is the whole argument for percentiles.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your API has a 200ms p99 but a 5ms average. Where do you look?**
 
-## Further Reading
+At the tail, and at what the tail has in common. Slow requests usually share a cause: a cold cache, a lock, a cold connection pool, or a slow downstream that only some requests touch. Look at the slow traces, not the fast ones — and check whether the p99 is a small number of very slow requests or a broad band, because those have different causes.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Judge performance at p95 and p99, never the average.
+- Write the latency budget before you optimise.
+- Queueing and batching buy throughput with latency — consciously.

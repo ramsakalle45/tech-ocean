@@ -1,34 +1,69 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Indexes and Query Plans — SQL module introduction.
+title: Indexes and Query Plans
+sidebar_label: Indexes and Query Plans
+description: Why a query is slow, and what the planner decided to do about it.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={9} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Read `EXPLAIN ANALYZE` output and say what actually happened
+- Explain what a B-tree index does and when it helps
+- Design composite indexes in the right column order
+- Recognise the queries where an index will not be used
 
-## The Concept
+## Why it matters
 
-To be written.
+A query plan is the database telling you exactly what it decided. Reading one turns "this query is slow" into "this query is doing a sequential scan because the predicate is not sargable".
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Window Functions](../window-functions/introduction) — complex queries are where plan reading matters most
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Reading a Query Plan | EXPLAIN, EXPLAIN ANALYZE, and what the numbers mean | Planned |
+| 02 | B-Tree Indexes | how they work, and the cost of writing them | Planned |
+| 03 | Composite Indexes | column order, and the leftmost prefix rule | Planned |
+| 04 | When Indexes Are Ignored | functions on columns, implicit casts, and low selectivity | Planned |
+
+## A worked example
+
+```sql
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT * FROM orders
+WHERE customer_id = 42
+  AND placed_at >= DATE '2026-01-01'
+  ORDER BY placed_at DESC;
+
+-- A composite index matching the predicate and the sort:
+CREATE INDEX orders_customer_placed_idx
+    ON orders (customer_id, placed_at DESC);
 ```
 
-## Quick Recap
+One index can serve the filter and the sort only if the column order matches: equality columns first, then the range or sort column.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A query has `WHERE DATE(created_at) = '2026-01-01'` and no index is used. Why?**
 
-## Further Reading
+The column is wrapped in a function, so the index on `created_at` cannot be used to find the value — the database would have to compute the function for every row. The fix is a sargable predicate: `created_at >= '2026-01-01' AND created_at < '2026-01-02'`, which lets the index do a range scan.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Read the actual plan with `EXPLAIN ANALYZE`, not the estimated one.
+- Composite index: equality columns first, then range and sort.
+- Functions on a column make a predicate non-sargable.

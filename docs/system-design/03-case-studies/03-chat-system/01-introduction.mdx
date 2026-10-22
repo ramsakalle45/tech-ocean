@@ -1,34 +1,79 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Chat System — System Design module introduction.
+title: Chat System
+sidebar_label: Chat System
+description: Real-time messaging, at scale, for many conversations.
 tags: [system-design, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={11} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Design the send, receive and fan-out path for a chat system
+- Explain how presence and typing indicators are kept live
+- Handle offline messages and multi-device sync
+- Reason about the read/write trade-offs in a chat store
 
-## The Concept
+## Why it matters
 
-To be written.
+Chat is where long-polling, WebSockets, fan-out and message ordering all appear at once. It is a good test of whether you can design for a write-heavy, latency-sensitive workload.
 
-## Example
+## Prerequisites
+
+- [Queues and Async Processing](../../building-blocks/queues/introduction) — message delivery leans hard on queues
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The Real-Time Path | WebSockets versus long-polling, and connection management | Planned |
+| 02 | Message Storage | the message log, and why it is append-only | Planned |
+| 03 | Fan-Out | online versus offline, and the write fan-out problem | Planned |
+| 04 | Presence and Sync | typing indicators, presence, and multi-device | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Send path:
+  client → API → write to message store (append, sequence number)
+                → publish to fan-out service
+                     → online sessions: push over WebSocket
+                     → offline users: write to per-user inbox
+
+Read path:
+  client opens chat → fetch recent messages (by sequence number)
+                     → then subscribe to live updates
+
+Why the append-only log:
+  - a message has one global order (per conversation sequence number)
+  - history is cheap to page through
+  - delivery is decoupled from storage
+
+Where the write fan-out hurts:
+  10,000 members in one group → 10,000 pushes per message.
+  Fix: store once, push a lightweight notification, and let
+  each member's session pull what it needs.
 ```
 
-## Quick Recap
+The fan-out problem is the whole design question in chat. Group size determines the architecture.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you deliver a message to a user who is offline?**
 
-## Further Reading
+Persist the message to the conversation log, and separately record it in that user’s inbox — the delivery metadata — when they are not connected. When they reconnect, they fetch from the inbox and then subscribe to the live stream. The inbox is per user and can be deleted once read, which keeps it small even when the conversation history is long.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Append-only message log with a per-conversation sequence number.
+- Fan-out is the hard part: write once, notify many.
+- Decouple storage from delivery with a per-user inbox.

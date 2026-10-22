@@ -1,34 +1,72 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Transformers — GenAI module introduction.
-tags: [genai, basic]
-difficulty: basic
-reading_time: 10
-prerequisites: []
+title: Transformers
+sidebar_label: Transformers
+description: The architecture underneath, and why its shape won.
+tags: [genai, intermediate]
+difficulty: intermediate
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={3} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain attention in terms of a lookup table over the whole sequence
+- Describe multi-head attention and what different heads learn
+- Explain the role of positional encoding
+- Trace how a prompt becomes a generated response through the layers
 
-## The Concept
+## Why it matters
 
-To be written.
+You do not need to derive attention to use LLMs well. But it explains context limits, cost scaling with sequence length, and why long-context behaviour is not uniform across the input.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Tokens and Embeddings](../tokens-and-embeddings/introduction) — attention operates on the vectors from the previous module
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Attention | queries, keys and values, and scaled dot-product attention | Planned |
+| 02 | Multi-Head Attention | several attention spaces in parallel | Planned |
+| 03 | Positional Encoding | how order is recovered in a permutation-equivariant model | Planned |
+| 04 | The Full Block | feed-forward layers, residual connections, normalisation, and depth | Planned |
+
+## A worked example
+
+```python
+import math
+
+def softmax(scores: list[float]) -> list[float]:
+    peak = max(scores)
+    exps = [math.exp(s - peak) for s in scores]
+    total = sum(exps)
+    return [e / total for e in exps]
+
+# One token asks every token "how relevant are you to me?"
+scores = [3.0, 1.0, 0.5]
+weights = softmax(scores)
+print([round(w, 3) for w in weights])   # [0.786, 0.145, 0.069]
 ```
 
-## Quick Recap
+Attention is a learned, content-addressed lookup. Each token produces a query; every token offers a key; the highest-scoring keys get the weight.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why is attention quadratic in sequence length, and what did that lead to?**
 
-## Further Reading
+Every token computes a score against every other token, so the cost of the attention matrix is O(n²) in sequence length. This put a hard ceiling on context size and motivated architectures that approximate attention — sparse, sliding-window, or recurrent variants — as well as work on key-value caching and sparse attention patterns.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Attention is a learned lookup over the whole sequence.
+- Multi-head attention attends in several learned spaces at once.
+- Position must be added explicitly — attention itself is order-blind.

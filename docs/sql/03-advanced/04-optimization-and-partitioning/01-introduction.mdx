@@ -1,34 +1,76 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Optimization and Partitioning — SQL module introduction.
+title: Optimization and Partitioning
+sidebar_label: Optimization and Partitioning
+description: Keeping queries fast as the data grows.
 tags: [sql, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={11} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Find and fix the N+1 query pattern
+- Decide when to normalise and when to denormalise
+- Choose a partitioning strategy and know when it is worth the complexity
+- Read the database’s own statistics before you change the schema
 
-## The Concept
+## Why it matters
 
-To be written.
+Schemas that are fine at 10,000 rows can fall over at 100 million. Partitioning, denormalisation and careful indexing are the tools that keep a database serving as it grows.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Transactions and Isolation](../transactions-and-isolation/introduction) — pruning only works if the planner understands the partition key
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | The N+1 Problem | finding and batching repeated queries | Planned |
+| 02 | Normalisation and Denormalisation | third normal form, and when redundancy pays | Planned |
+| 03 | Partitioning | range, hash and list, and partition pruning | Planned |
+| 04 | Keeping Statistics Fresh | ANALYZE, histograms, and plan stability | Planned |
+
+## A worked example
+
+```sql
+-- N+1: one query for the orders, then one per order for its customer.
+-- Fix: fetch in one pass.
+SELECT o.id, c.name
+FROM orders AS o
+JOIN customers AS c ON c.id = o.customer_id
+WHERE o.customer_id IN (42, 87, 105);
+
+-- Range partitioning, pruned by the planner:
+CREATE TABLE events (
+    id        BIGINT,
+    created_at TIMESTAMPTZ NOT NULL,
+    payload   JSONB
+) PARTITION BY RANGE (created_at);
+
+CREATE TABLE events_2026_01 PARTITION OF events
+    FOR VALUES FROM ('2026-01-01') TO ('2026-02-01');
 ```
 
-## Quick Recap
+Partitioning helps most when queries filter on the partition key, letting the planner skip whole partitions.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**When is denormalisation the right call?**
 
-## Further Reading
+When a read is hot and the join is genuinely expensive, and you can accept the cost of keeping the redundant copy consistent. The classic case is a counter that would otherwise require counting a huge table on every read. Denormalise a derived value that is written rarely and read constantly, and make the update path idempotent.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- N+1 is the most common performance bug in application code.
+- Partition to prune, and partition on the column you filter by.
+- Keep statistics fresh so the planner keeps choosing well.

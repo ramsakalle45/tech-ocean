@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Concurrency — Python module introduction.
+title: Concurrency
+sidebar_label: Concurrency
+description: Threads, processes and asyncio — and knowing which one you need.
 tags: [python, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 70
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={9} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Distinguish concurrency from parallelism, and I/O-bound from CPU-bound
+- Use a thread pool for blocking I/O and a process pool for CPU work
+- Write `async` code that does not block the event loop
+- Explain what the GIL changes about each of these choices
 
-## The Concept
+## Why it matters
 
-To be written.
+Concurrency is how a single-threaded program waits on many slow things at once. Choosing the wrong tool costs you either throughput or the whole event loop.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Error Handling and Files](../../intermediate/error-handling-and-files/introduction) — concurrent code is where error handling gets interesting
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Threading | the GIL, shared state, and thread pools | Planned |
+| 02 | Multiprocessing | separate interpreters, pickling, and real parallelism | Planned |
+| 03 | asyncio | the event loop, coroutines, and tasks | Planned |
+| 04 | Choosing a Model | a decision guide for I/O-bound and CPU-bound work | Planned |
+
+## A worked example
+
+```python
+import asyncio
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.text()
+
+async def main(urls):
+    async with aiohttp.ClientSession() as session:
+        return await asyncio.gather(
+            *(fetch(session, url) for url in urls)
+        )
 ```
 
-## Quick Recap
+`asyncio.gather` runs the coroutines concurrently on one thread. If any coroutine does blocking work — a sync HTTP call, `time.sleep` — it stalls every other task.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your program makes 100 HTTP requests and takes 30 seconds. Each request takes 300ms. What is the problem?**
 
-## Further Reading
+The requests are I/O-bound and are being made sequentially. With a thread pool or `asyncio.gather` they should take roughly 300ms plus overhead, not 30 seconds. The first fix is concurrency; the second, if you still need it, is connection pooling and keep-alive.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- I/O-bound: threads or asyncio. CPU-bound: processes.
+- Never block the event loop — no `time.sleep`, no sync I/O inside `async def`.
+- The GIL limits CPU-bound threads, not I/O-bound ones.

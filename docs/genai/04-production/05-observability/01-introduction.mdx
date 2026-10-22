@@ -1,34 +1,79 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Observability — GenAI module introduction.
+title: Observability
+sidebar_label: Observability
+description: Seeing what your system actually did, after the fact.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={16} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Trace a request from prompt to tool calls to final output
+- Log what you need to debug a bad answer, without logging private data
+- Build dashboards that show quality, not just volume
+- Use traces to find where an agent went wrong
 
-## The Concept
+## Why it matters
 
-To be written.
+A language-model system fails in ways that logs of status codes will never show. You need to see the prompt, the retrieved context, the tool calls and the final output — linked together, per request.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Evals](../evals/introduction) — evals measure; observability explains
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Tracing a Request | spans, and linking prompt, context, tools and output | Planned |
+| 02 | What to Log | the debugging fields, and what must never be logged | Planned |
+| 03 | Quality Dashboards | latency, cost, refusal rate, and groundedness over time | Planned |
+| 04 | Debugging Failures | reading a trace of a bad answer | Planned |
+
+## A worked example
+
+```python
+@trace("rag.answer")
+def answer(question: str, user_id: str) -> Answer:
+    with span("retrieve") as s:
+        chunks = vector_search(question)
+        s.set_attribute("chunk_count", len(chunks))
+        s.set_attribute("chunk_ids", [c.id for c in chunks])
+
+    with span("generate") as s:
+        result = generate(context=chunks, question=question)
+        s.set_attribute("input_tokens", result.usage.input)
+        s.set_attribute("output_tokens", result.usage.output)
+        s.set_attribute("citations", result.citations)
+
+    log.info("rag.answer", extra={
+        "user_id": user_id,
+        "question_hash": hash_text(question),   # not the question itself
+        "top_score": chunks[0].score if chunks else None,
+    })
+    return result
 ```
 
-## Quick Recap
+Hash or redact user content in logs, and keep the trace. You want to debug a bad answer next week without holding everyone’s personal data.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A user says the assistant gave a wrong answer. What do you need to investigate?**
 
-## Further Reading
+The trace for that request: the exact prompt, the documents retrieved and their scores, the tool calls made and their arguments, the model’s raw output, and the final response. Without the retrieval step you cannot tell a retrieval failure from a generation failure, and those have completely different fixes. This is why the trace has to exist before the complaint does.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Trace every request end to end, with the retrieval step included.
+- Redact user content in logs; keep the structure.
+- Dashboards should show quality signals, not only request counts.

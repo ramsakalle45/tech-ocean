@@ -1,34 +1,93 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Chunking and Embeddings — GenAI module introduction.
-tags: [genai, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Chunking and Embeddings
+sidebar_label: Chunking and Embeddings
+description: Turning a document collection into something you can search.
+tags: [genai, intermediate]
+difficulty: intermediate
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={8} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Choose a chunking strategy that fits your documents
+- Explain why chunk boundaries decide your retrieval quality
+- Add metadata that makes filtering possible later
+- Evaluate chunking changes instead of guessing
 
-## The Concept
+## Why it matters
 
-To be written.
+Retrieval quality is capped by chunk quality. A chunk that cuts a definition in half, or merges two unrelated sections, will either miss the question or waste context — and no amount of prompt tuning fixes that.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Tokens and Embeddings](../../foundations/tokens-and-embeddings/introduction) — chunking produces the vectors you will search
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Chunking Strategies | fixed size, by structure, and semantic boundaries | Planned |
+| 02 | Overlap and Context | keeping a sentence whole across a boundary | Planned |
+| 03 | Metadata | the fields that make retrieval filterable | Planned |
+| 04 | Evaluating Chunks | measuring retrieval against a question set | Planned |
+
+## A worked example
+
+```python
+def chunk_by_heading(text: str, *, max_chars: int = 1200) -> list[dict]:
+    """Split on markdown headings, then split any oversized section."""
+    sections: list[dict] = []
+    heading = "Untitled"
+    buffer: list[str] = []
+
+    def flush() -> None:
+        if not buffer:
+            return
+        body = "\n".join(buffer).strip()
+        if body:
+            sections.append({"heading": heading, "text": body})
+        buffer.clear()
+
+    for line in text.splitlines():
+        if line.startswith("#"):
+            flush()
+            heading = line.lstrip("#").strip()
+        else:
+            buffer.append(line)
+    flush()
+
+    # split oversized sections on blank lines
+    out: list[dict] = []
+    for section in sections:
+        while len(section["text"]) > max_chars:
+            head, _, tail = section["text"].rpartition("\n\n")
+            if not head:
+                break
+            out.append({"heading": section["heading"], "text": head})
+            section = {"heading": section["heading"], "text": tail}
+        out.append(section)
+    return out
 ```
 
-## Quick Recap
+Splitting on structure keeps a heading with its body. That single field is often more useful for retrieval than the text itself.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What chunk size should you use?**
 
-## Further Reading
+There is no universal answer, so treat it as a tunable. Small chunks retrieve precisely but lose context; large chunks carry context but dilute the embedding and waste the context window. Start around a few hundred tokens, and choose against a question set: measure whether the correct document is retrieved, then tune the size and overlap to improve recall without hurting precision.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Chunk on structure where you can — headings, paragraphs, sections.
+- Keep the heading with its body as metadata.
+- Tune chunk size against a question set, not by intuition.

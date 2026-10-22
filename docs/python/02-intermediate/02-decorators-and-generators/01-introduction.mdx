@@ -1,34 +1,76 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Decorators and Generators — Python module introduction.
+title: Decorators and Generators
+sidebar_label: Decorators and Generators
+description: Functions that wrap functions, and functions that pause.
 tags: [python, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={6} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write a decorator that preserves the wrapped function’s metadata and signature
+- Explain what a closure captures and when that capture goes stale
+- Use `yield` to write a generator, and `yield from` to delegate one
+- Choose between a generator and a list for a large result set
 
-## The Concept
+## Why it matters
 
-To be written.
+Decorators are how Python adds behaviour without editing the original code — timing, caching, retries, authorisation. Generators are how Python handles sequences too large to hold in memory. Both show up constantly in real code.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Functions](../../basics/functions/introduction) — closures build on the rule that a function remembers its enclosing scope
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Decorators | the mechanics, `functools.wraps`, and decorator arguments | Planned |
+| 02 | Closures | late binding, and the loop-variable trap | Planned |
+| 03 | Generators | `yield`, `send`, `throw`, and `yield from` | Planned |
+| 04 | Iterators and Lazy Evaluation | the iterator protocol and where it shows up | Planned |
+
+## A worked example
+
+```python
+import functools
+import time
+
+def timed(fn):
+    @functools.wraps(fn)          # keeps __name__, __doc__ and the signature
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        try:
+            return fn(*args, **kwargs)
+        finally:
+            print(f"{fn.__name__}: {time.perf_counter() - start:.3f}s")
+    return wrapper
+
+@timed
+def slow(n):
+    return sum(range(n))
 ```
 
-## Quick Recap
+Without `functools.wraps`, the decorated function reports the wrong name and docstring — which quietly breaks introspection, logging and some test frameworks.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**What is the late-binding closure bug?**
 
-## Further Reading
+A closure captures a variable by reference, not by value. If you build a list of functions in a loop and each one refers to the loop variable, they all see the *final* value of that variable, not the value at the time they were created. The fix is to bind the current value explicitly, for example with a default argument or a factory function.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A decorator is a function that takes a function and returns a function.
+- Always use `functools.wraps` on the wrapper.
+- A generator is a function that returns a lazy iterator; `yield` pauses it.

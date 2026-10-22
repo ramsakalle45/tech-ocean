@@ -1,34 +1,74 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Coding Patterns — Python module introduction.
-tags: [python, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Coding Patterns
+sidebar_label: Coding Patterns
+description: The shapes most interview problems come in.
+tags: [python, intermediate]
+difficulty: intermediate
+reading_time: 75
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={14} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Recognise two pointers, sliding window, stack, queue and hash-map patterns on sight
+- State the time and space complexity of a solution as you write it
+- Move from a brute force to an optimal solution, and explain each step
+- Handle the edge cases an interviewer will ask about
 
-## The Concept
+## Why it matters
 
-To be written.
+Interview problems are less about the specific problem than the pattern underneath. Recognising the pattern is most of the work; the code follows.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Collections](../../basics/collections/introduction) — hash maps and heaps carry most of these patterns
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Two Pointers | sorted arrays, pair sums, and palindromes | Planned |
+| 02 | Sliding Window | fixed and variable windows over sequences | Planned |
+| 03 | Stacks, Queues and Heaps | monotonic stacks, and streaming medians | Planned |
+| 04 | Recursion and Backtracking | choice, constraint, and pruning | Planned |
+| 05 | Dynamic Programming Basics | state, transition, and memoisation | Planned |
+
+## A worked example
+
+```python
+def longest_unique_substring(s: str) -> int:
+    """Longest substring with no repeated character — sliding window."""
+    last_seen: dict[str, int] = {}
+    start = 0
+    best = 0
+
+    for index, char in enumerate(s):
+        if char in last_seen and last_seen[char] >= start:
+            start = last_seen[char] + 1
+        last_seen[char] = index
+        best = max(best, index - start + 1)
+
+    return best
 ```
 
-## Quick Recap
+O(n) time, O(min(n, alphabet)) space. Saying that out loud before you code is worth more than any optimisation.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you decide whether a problem is a sliding window?**
 
-## Further Reading
+Look for a contiguous range whose property you are maximising or minimising, and ask whether the property is monotonic as the window grows. If extending the window can only make things worse or better in one direction, you can slide it. If the property is not monotonic, it is usually a different pattern — often two pointers or DP.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- State the complexity before you start coding.
+- Name the pattern out loud — it is what the interviewer is scoring.
+- Always handle the empty and single-element cases.

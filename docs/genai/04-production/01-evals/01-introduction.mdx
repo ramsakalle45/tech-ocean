@@ -1,34 +1,79 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Evals — GenAI module introduction.
+title: Evals
+sidebar_label: Evals
+description: Measuring whether the system got better or just got different.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={12} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Build a small, representative evaluation set
+- Choose a scoring method and know when it needs a human
+- Run an eval in CI and gate a release on it
+- Tell the difference between a regression and a legitimate change
 
-## The Concept
+## Why it matters
 
-To be written.
+Without evals, every prompt change is a guess and every model upgrade is a gamble. With evals, change becomes a controlled experiment — and you can prove the improvement.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [RAG Pipelines](../../rag-and-agents/rag-pipelines/introduction) — a RAG system has two things to evaluate
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Building an Eval Set | size, coverage, and keeping it current | Planned |
+| 02 | Scoring Methods | exact match, rubric, LLM-as-judge, and humans | Planned |
+| 03 | LLM as Judge | how to do it without fooling yourself | Planned |
+| 04 | Evals in CI | gating releases and catching regressions | Planned |
+
+## A worked example
+
+```python
+JUDGE_PROMPT = """You are grading an answer against a reference.
+Score 1-5 on correctness, then 1-5 on unsupported claims.
+Return JSON: {"correctness": n, "grounded": n, "reason": "..."}"""
+
+def score(case: Case, answer: str) -> Score:
+    verdict = llm_json(
+        JUDGE_PROMPT,
+        question=case.question,
+        reference=case.reference,
+        answer=answer,
+    )
+    return Score(
+        correctness=verdict["correctness"],
+        grounded=verdict["grounded"],
+    )
+
+# A release gate: the new prompt must not regress the score.
+if mean(scores) < BASELINE - 0.05:
+    raise SystemExit("eval regression")
 ```
 
-## Quick Recap
+A judge model scores answers, but it should never see which variant produced them, and you should spot-check its verdicts against human judgement periodically.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you build an evaluation set when you have no users yet?**
 
-## Further Reading
+Write it by hand. Take a hundred questions a real expert would ask, with their expected answers, and include the awkward ones — ambiguous questions, questions with no answer in the corpus, and questions that look similar but are different. The set is small and curated on purpose; it does not need to be large, it needs to be representative and to keep growing.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- A small, curated eval set beats a large generated one.
+- Evaluate retrieval and generation separately.
+- Gate releases on evals, not on optimism.

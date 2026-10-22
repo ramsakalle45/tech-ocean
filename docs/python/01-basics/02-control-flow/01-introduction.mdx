@@ -1,34 +1,66 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Control Flow — Python module introduction.
+title: Control Flow
+sidebar_label: Control Flow
+description: Branching, looping, and the shape of a program.
 tags: [python, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={2} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write a loop that terminates for every input you care about
+- Use `for` and `while` for the cases each one is actually good at
+- Explain what `else` on a loop is for, and when it earns its keep
+- Reach for `match` when a value has a fixed set of shapes
 
-## The Concept
+## Why it matters
 
-To be written.
+Control flow is where a program stops being a list of steps and starts having behaviour. It is also where the bugs live: loops that never end, and branches that quietly skip work.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Syntax and Variables](../syntax-and-variables/introduction) — you need to be comfortable reading an expression before branching on it
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Conditionals | if / elif / else, truthiness, and the ternary | Planned |
+| 02 | Loops | for over iterables, while, and range | Planned |
+| 03 | Break, Continue and Else | Loop control and the `else` clause nobody remembers | Planned |
+| 04 | Pattern Matching | match / case, guards, and binding | Planned |
+
+## A worked example
+
+```python
+for n in range(2, 10):
+    if n % 2 == 0:
+        continue
+    if n > 7:
+        break
+    print(n)          # 3, 5, 7
 ```
 
-## Quick Recap
+Reach for `range` when you know the count, `while` when you know the condition. Mixing them up is the most common source of off-by-one errors.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why is `while True` often paired with `break` rather than a condition?**
 
-## Further Reading
+Because it separates "how do I stop" from "when do I stop". The loop body reads linearly — process one item, decide whether to continue — instead of nesting the continuation test inside a compound condition. It also guarantees at least one pass, which `while condition` does not.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- `for` iterates over something; `while` repeats until a condition changes.
+- Every loop needs a termination argument. Write it down.
+- `break` exits, `continue` skips to the next iteration, loop `else` runs when no `break` happened.

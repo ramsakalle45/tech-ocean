@@ -1,34 +1,75 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Queues — System Design module introduction.
+title: Queues and Async Processing
+sidebar_label: Queues and Async Processing
+description: Decoupling work, and absorbing bursts.
 tags: [system-design, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={6} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Decide what belongs on a queue and what must stay synchronous
+- Design for at-least-once delivery and make consumers idempotent
+- Handle a poison message without blocking the queue
+- Reason about ordering, backpressure and dead-letter queues
 
-## The Concept
+## Why it matters
 
-To be written.
+A queue turns a spike into a backlog. That single property is why queues are everywhere — and it is also why you have to think about duplicates, ordering and failure.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Caching](../caching/introduction) — the other half of the read/write path
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | When to Queue | smoothing bursts, and decoupling dependencies | Planned |
+| 02 | Delivery Semantics | at-most-once, at-least-once, exactly-once, and what is achievable | Planned |
+| 03 | Failure Handling | retries, backoff, dead-letter queues, poison messages | Planned |
+| 04 | Ordering and Backpressure | partition keys, and letting the queue fill up | Planned |
+
+## A worked example
+
+```python
+def handle(message: Message) -> None:
+    """Idempotent, because the queue promises at-least-once."""
+    if already_processed(message.id):
+        return
+
+    try:
+        result = do_the_work(message)
+        mark_processed(message.id)
+    except PermanentError as exc:
+        dead_letter.send(message, reason=str(exc))   # will never succeed
+    except TransientError as exc:
+        if message.attempts >= 5:
+            dead_letter.send(message, reason=str(exc))
+        else:
+            requeue_after(message, delay=2 ** message.attempts)  # backoff
 ```
 
-## Quick Recap
+The `already_processed` check is what turns at-least-once into effectively-once. Make the work idempotent and the delivery guarantee stops mattering.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A consumer keeps failing on one message and the queue is backing up. What do you do?**
 
-## Further Reading
+Stop the poison message from blocking the rest. Retry it a bounded number of times with backoff, then move it to a dead-letter queue so the main queue drains. Then fix the cause separately. A common mistake is infinite retries, which means one bad message stalls every consumer behind it and the backlog never clears.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Queue work that can be slow, retryable, and independent of the response.
+- Assume at-least-once and make the consumer idempotent.
+- Always have a dead-letter queue and a bounded retry policy.

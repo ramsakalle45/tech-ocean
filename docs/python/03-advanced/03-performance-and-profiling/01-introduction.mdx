@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Performance and Profiling — Python module introduction.
+title: Performance and Profiling
+sidebar_label: Performance and Profiling
+description: Measure first, then make it faster, without making it worse.
 tags: [python, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 60
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={11} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Profile before you optimise, and read a profile output correctly
+- Tell an algorithmic problem from an implementation detail
+- Apply the optimisations that pay: local variables, comprehensions, `__slots__`
+- Avoid the optimisations that cost more than they save
 
-## The Concept
+## Why it matters
 
-To be written.
+Most "Python is slow" claims are about the algorithm, not the language. A profiler turns a vague feeling into a number, and a number tells you whether the work is worth doing.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Memory and the GIL](../memory-and-gil/introduction) — memory layout and allocation show up in profiles
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | cProfile and pstats | finding the hot path | Planned |
+| 02 | Micro-benchmarking | timeit, and why micro-benchmarks lie | Planned |
+| 03 | Python-level Optimisations | comprehensions, local lookups, `__slots__`, avoiding copies | Planned |
+| 04 | When to Step Outside Python | vectorisation, C extensions, and the trade-offs | Planned |
+
+## A worked example
+
+```python
+import cProfile, pstats, io
+
+pr = cProfile.Profile()
+pr.enable()
+result = process_the_data(rows)
+pr.disable()
+
+s = io.StringIO()
+pstats.Stats(pr, stream=s).sort_stats("cumulative").print_stats(12)
+print(s.getvalue())
 ```
 
-## Quick Recap
+Sort by `cumulative` to find the call tree cost, and by `tottime` to find where the time is actually spent. The difference between those two is where most misreadings happen.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A function gets slower as you add more items to a list it reads. What is a likely cause?**
 
-## Further Reading
+A linear scan inside a loop — the classic O(n²). Check whether the inner body does a membership test against a list where a set or dict lookup would be O(1). Profiling would confirm it, but the shape of the slowdown points straight at it.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Profile first. Every time.
+- Algorithmic wins beat micro-optimisation by orders of magnitude.
+- Optimise for readability unless measurement says otherwise.

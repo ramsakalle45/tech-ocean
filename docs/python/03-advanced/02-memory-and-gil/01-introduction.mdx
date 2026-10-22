@@ -1,34 +1,77 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Memory and Gil — Python module introduction.
+title: Memory and the GIL
+sidebar_label: Memory and the GIL
+description: What Python actually does with your objects, and what the GIL does to threads.
 tags: [python, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 65
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={10} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Explain reference counting and the cycle collector
+- Predict what happens to an object after the last name pointing at it goes away
+- Describe what the GIL protects and what it does not
+- Find the memory a process is actually using
 
-## The Concept
+## Why it matters
 
-To be written.
+Python hides memory management, but it does not remove it. Understanding when objects are freed explains a whole class of surprising behaviour — dangling references, memory that grows and never shrinks, and threads that do not scale.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [OOP](../../intermediate/oop/introduction) — objects, references and destructors are the vocabulary here
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Object Memory | the object header, `__sizeof__`, and `sys.getsizeof` | Planned |
+| 02 | Reference Counting and GC | immediate deallocation, cycles, and the generational collector | Planned |
+| 03 | The GIL | what it locks, what it costs, and what free-threading changes | Planned |
+| 04 | Measuring Memory | tracemalloc, RSS, and reading a heap dump | Planned |
+
+## A worked example
+
+```python
+import sys, weakref
+
+class Node:
+    pass
+
+node = Node()
+print(sys.getsizeof(node))            # 48 bytes plus the dict
+
+ref = weakref.ref(node)
+del node
+print(ref())                          # None — collected immediately
+
+# A cycle is different:
+a, b = Node(), Node()
+a.other, b.other = b, a
+del a, b
+# still alive: the cycle keeps both alive until the GC runs
 ```
 
-## Quick Recap
+Reference counting frees most objects the instant the last reference goes. Only cycles need the garbage collector.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Does the GIL make Python single-threaded?**
 
-## Further Reading
+It makes *CPU-bound* Python code effectively single-threaded, because only one thread executes bytecode at a time. It releases the lock during I/O, so I/O-bound threads scale well. It also does not protect CPU work written in C extensions that release the GIL, which is why NumPy scales across threads.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Reference counting frees objects immediately; cycles need the GC.
+- The GIL limits CPU-bound Python threads, not I/O-bound ones.
+- Measure before optimising: `tracemalloc` and `sys.getsizeof` answer most questions.

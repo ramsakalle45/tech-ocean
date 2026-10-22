@@ -1,34 +1,70 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Error Handling and Files — Python module introduction.
+title: Error Handling and Files
+sidebar_label: Error Handling and Files
+description: Failing gracefully, and reading and writing files safely.
 tags: [python, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={7} eyebrow="Python" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Catch the right exception, at the right level, with the right amount of context
+- Write a custom exception that carries useful information
+- Use the `with` statement so files close even when the body raises
+- Handle encoding, large files and partial writes without corrupting data
 
-## The Concept
+## Why it matters
 
-To be written.
+Every long-running program eventually hits an error. Where you handle it decides whether a failure is a logged warning or an outage. Catching too broadly hides bugs; catching too narrowly crashes on inputs you did not predict.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Functions](../../basics/functions/introduction) — errors propagate up the call stack until something handles them
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Exceptions | the hierarchy, `raise`, and `except` ordering | Planned |
+| 02 | Custom Exceptions | exceptions that carry context | Planned |
+| 03 | Context Managers | `with`, `__enter__` and `__exit__` | Planned |
+| 04 | Files and Paths | encoding, streaming, and `pathlib` | Planned |
+
+## A worked example
+
+```python
+from pathlib import Path
+
+def read_lines(path: Path) -> list[str]:
+    try:
+        with path.open(encoding="utf-8") as fh:
+            return fh.read().splitlines()
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"no such config: {path}") from exc
+    except UnicodeDecodeError as exc:
+        raise ValueError(f"{path} is not utf-8 text") from exc
 ```
 
-## Quick Recap
+`from exc` keeps the original traceback visible, so you can see both the cause and your explanation. Never use a bare `except:` — it swallows `KeyboardInterrupt` and `SystemExit` too.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Where should you catch an exception?**
 
-## Further Reading
+As close to the point of failure as you can add useful context, and no further. Catch it low if you can retry or fall back; let it travel if the caller is in a better position to decide. A top-level `except Exception` that only logs and continues is almost always hiding a bug.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Catch specific exceptions, never bare `except:`.
+- Add context with `raise ... from exc` — it keeps the cause visible.
+- Use `with` for anything with a lifecycle, especially files.

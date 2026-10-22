@@ -1,34 +1,87 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Framework — System Design module introduction.
-tags: [system-design, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: The Framework
+sidebar_label: The Framework
+description: A repeatable way to answer a design question under time pressure.
+tags: [system-design, intermediate]
+difficulty: intermediate
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={15} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Run a 45-minute design interview with a clear structure
+- Ask the clarifying questions that actually change the design
+- Estimate scale, and state your assumptions out loud
+- Present a design with its trade-offs stated rather than implied
 
-## The Concept
+## Why it matters
 
-To be written.
+Most candidates lose design interviews on process, not knowledge. A fixed structure frees you to think about the actual problem.
 
-## Example
+## Prerequisites
+
+- [Notification System](../../case-studies/notification-system/introduction) — the case studies are the practice; this is the frame around them
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Clarifying Questions | the five that change the design | Planned |
+| 02 | Requirements and Scale | functional needs, then numbers | Planned |
+| 03 | The High-Level Design | a diagram that fits on the whiteboard | Planned |
+| 04 | Deep Dive and Trade-offs | pick two components and go deep | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+1. Requirements       (5 min)
+   Who uses it? What are the core features? What must be fast
+   and what can be slow?
+
+2. Scale              (5 min)
+   How many users? How many requests/second? How much data?
+   Write the numbers down. State your assumptions.
+
+3. API and data model (5 min)
+   The endpoints, and the shape of the main entities.
+   This is where most designs go wrong — sketching the system
+   before knowing what it stores.
+
+4. High-level design  (10 min)
+   The boxes and the arrows. Say the direction of each arrow
+   and what crosses it.
+
+5. Deep dive         (15 min)
+   Pick the two components that matter most. Usually the
+   write path and the read path.
+
+6. Wrap up           (5 min)
+   Failure modes, monitoring, and what you would do with more
+   time.
+
+Always: talk through your thinking. A silent candidate is
+impossible to help, and silence looks like guessing.
 ```
 
-## Quick Recap
+If the interviewer says "you can go one level deeper", they are telling you which part to expand. Take the hint.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you start a design interview?**
 
-## Further Reading
+With questions, not a diagram. What is being built, for whom, and what is the defining constraint — read-heavy or write-heavy, huge payloads, real-time, or batch? Then the scale numbers, out loud, so we can correct each other if my assumptions are wrong. I want to know what matters before I draw anything, because the same problem has very different designs at a hundred requests per second and a million.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Questions first, then numbers, then the diagram.
+- Name the read and write paths before anything else.
+- State the trade-off you are making, out loud.

@@ -1,34 +1,79 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Function Calling — GenAI module introduction.
+title: Function Calling
+sidebar_label: Function Calling
+description: Letting a model ask your code to do something.
 tags: [genai, intermediate]
 difficulty: intermediate
-reading_time: 10
-prerequisites: []
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={7} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Define a tool with a schema the model can choose from
+- Run the tool and return the result back to the model
+- Write the tool description so the model picks the right one
+- Keep the model out of the loop for anything that matters
 
-## The Concept
+## Why it matters
 
-To be written.
+Tool use is how a model stops being a text generator and starts being a component in a system. The hard part is not the mechanics — it is writing tool descriptions and keeping authority where it belongs.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Structured Output](../structured-output/introduction) — tool arguments are structured output
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Tool Definitions | name, description, and parameter schema | Planned |
+| 02 | The Tool Loop | call, execute, return, repeat | Planned |
+| 03 | Tool Selection | writing descriptions the model can act on | Planned |
+| 04 | Safety | what the model may propose and what your code may execute | Planned |
+
+## A worked example
+
+```python
+TOOLS = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Current weather for a city. Use for temperature and conditions.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "city": {"type": "string", "description": "City name, e.g. 'Bengaluru'"},
+                "units": {"type": "string", "enum": ["metric", "imperial"]},
+            },
+            "required": ["city"],
+        },
+    },
+}]
+
+# The model proposes; your code decides.
+if call["function"]["name"] == "get_weather":
+    result = get_weather(**json.loads(call["function"]["arguments"]))
 ```
 
-## Quick Recap
+The description is the API for the model. Vague descriptions produce wrong tool choices more often than any model weakness does.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A model can call a `delete_user` tool. How do you make this safe?**
 
-## Further Reading
+Never let the model be the authorisation boundary. The tool implementation must check the caller’s permissions itself, using a server-side identity, not anything the model supplied. Keep destructive tools out of the tool list when the task does not need them, require an explicit confirmation step outside the model, and log every invocation with its arguments.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Tool descriptions are prompts — write them for the model, not for humans.
+- Validate arguments in the tool, not just in the model’s schema.
+- The model proposes; your code decides and authorises.

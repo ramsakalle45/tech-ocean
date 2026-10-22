@@ -1,34 +1,71 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Ddl and Dml — SQL module introduction.
+title: DDL and DML
+sidebar_label: DDL and DML
+description: Creating tables, changing them, and putting data in and out.
 tags: [sql, basic]
 difficulty: basic
-reading_time: 10
-prerequisites: []
+reading_time: 40
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={3} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Create a table with sensible types and constraints
+- Choose between common column types and know what each stores
+- Insert, update and delete rows safely
+- Make a schema change without losing data
 
-## The Concept
+## Why it matters
 
-To be written.
+The schema is the contract every query depends on. A column typed as text when it should be a number, or a timestamp with no timezone, causes bugs that surface months later.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Select and Filtering](../select-and-filtering/introduction) — you need to know what a table looks like before you change it
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Creating Tables | DDL, column types, and defaults | Planned |
+| 02 | Column Types | integers, decimals, text, dates, JSON, and money | Planned |
+| 03 | Inserting and Updating | DML, `RETURNING`, and upserts | Planned |
+| 04 | Altering Tables | adding columns, renaming, and the safety rules | Planned |
+
+## A worked example
+
+```sql
+CREATE TABLE orders (
+    id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    customer_id  BIGINT      NOT NULL REFERENCES customers (id),
+    total_cents  BIGINT      NOT NULL CHECK (total_cents >= 0),
+    currency     CHAR(3)     NOT NULL DEFAULT 'GBP',
+    placed_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+    metadata     JSONB
+);
+
+CREATE INDEX orders_customer_placed_idx
+    ON orders (customer_id, placed_at DESC);
 ```
 
-## Quick Recap
+Money as an integer count of minor units, and timestamps with a timezone. Both decisions save you later.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Why store money as an integer instead of a float?**
 
-## Further Reading
+Binary floating point cannot represent most decimal fractions exactly, so `0.1 + 0.2` is not `0.3`. For money, store the smallest unit as an integer — 1050 pence — and format only at the edges. Alternatively use a fixed-precision decimal type, but never a float.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Use `TIMESTAMPTZ`, not `TIMESTAMP`, for real-world time.
+- Store money in minor units as an integer.
+- Add columns as nullable, backfill, then add the constraint.

@@ -1,34 +1,72 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Classic Problems — SQL module introduction.
-tags: [sql, advanced]
-difficulty: advanced
-reading_time: 10
-prerequisites: []
+title: Classic Problems
+sidebar_label: Classic Problems
+description: The SQL interview questions, and the patterns behind them.
+tags: [sql, intermediate]
+difficulty: intermediate
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={12} eyebrow="SQL" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Write "top N per group" without a self-join
+- Compute running totals and gaps with window functions
+- Deduplicate keeping the most recent row
+- Explain the trade-off between a CTE and a window function
 
-## The Concept
+## Why it matters
 
-To be written.
+These specific questions appear constantly, and they are all variations on a handful of shapes: rank within a group, compare with a neighbour, and keep the latest.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Window Functions](../../advanced/window-functions/introduction) — most of these are window function problems in disguise
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Top N per Group | ranking within a partition | Planned |
+| 02 | Running Totals and Gaps | windows and self-joins | Planned |
+| 03 | Deduplication | keeping the latest row per key | Planned |
+| 04 | Time Series | filling gaps, and rolling windows | Planned |
+
+## A worked example
+
+```sql
+WITH ranked AS (
+    SELECT
+        o.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY o.customer_id
+            ORDER BY o.placed_at DESC
+        ) AS rn
+    FROM orders AS o
+)
+SELECT *
+FROM ranked
+WHERE rn = 1;
 ```
 
-## Quick Recap
+The same shape answers "latest order per customer" and "top order per customer". Only the ordering changes.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**How do you find the top three products by revenue for each category?**
 
-## Further Reading
+Aggregate revenue per product per category, then rank within the category with `ROW_NUMBER() OVER (PARTITION BY category ORDER BY revenue DESC)` and keep ranks 1 to 3. The partitioning column is the category; the ordering column is the revenue.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Most "per group" questions are a window function.
+- Aggregate first, then rank — the other order is usually wrong.
+- Use a deterministic tiebreaker so paging is stable.

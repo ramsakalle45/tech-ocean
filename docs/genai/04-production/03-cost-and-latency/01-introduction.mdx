@@ -1,34 +1,67 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Cost and Latency — GenAI module introduction.
+title: Cost and Latency
+sidebar_label: Cost and Latency
+description: What a request costs and how long it takes, and how to move both.
 tags: [genai, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 50
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={14} eyebrow="GenAI" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Estimate the cost of a request from tokens and model rates
+- Find the latency budget of a request and know which part is slow
+- Apply the levers: smaller model, shorter context, caching, batching
+- Set per-user and per-feature budgets that actually hold
 
-## The Concept
+## Why it matters
 
-To be written.
+Cost and latency are the two constraints that determine whether a feature ships. Both are dominated by a small number of levers, and both get worse linearly if nobody watches them.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [LLM APIs](../../working-with-llms/llm-apis/introduction) — tokens and model choice are the inputs to both
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Cost Model | input versus output tokens, and where the money goes | Planned |
+| 02 | Latency Budget | time to first token versus time to complete | Planned |
+| 03 | Optimisation Levers | model size, context, caching, batching | Planned |
+| 04 | Budgets and Limits | per-user caps, and graceful degradation | Planned |
+
+## A worked example
+
+```python
+def estimate_cost(prompt_tokens: int, output_tokens: int, rate_in: float, rate_out: float) -> float:
+    """Rates are per million tokens."""
+    return (prompt_tokens * rate_in + output_tokens * rate_out) / 1_000_000
+
+# 2k in, 500 out
+per_call = estimate_cost(2000, 500, rate_in=0.15, rate_out=0.60)
+print(f"${per_call:.4f} per call, ${per_call * 10_000:.2f} per 10k calls")
 ```
 
-## Quick Recap
+Output tokens are usually priced higher and usually grow faster than you expect, because "be concise" in a prompt is a request, not a guarantee.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**Your feature costs 40% more than last month. Where do you look first?**
 
-## Further Reading
+Compare the token mix, not the total. Did input tokens grow — often because a prompt template picked up extra context, or a feature started sending more documents? Did output tokens grow because the model became more verbose? Or did traffic grow? Each has a different fix: trim the prompt, cap output length and enforce a schema, or add caching and a smaller model tier.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Cost is dominated by tokens; output tokens are the expensive half.
+- Time to first token is what a user perceives as responsiveness.
+- Cache aggressively and set hard budgets per user.

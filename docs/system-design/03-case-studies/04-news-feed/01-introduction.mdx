@@ -1,34 +1,80 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: News Feed — System Design module introduction.
+title: News Feed
+sidebar_label: News Feed
+description: Building a timeline that is fast, fresh and personalised.
 tags: [system-design, advanced]
 difficulty: advanced
-reading_time: 10
-prerequisites: []
+reading_time: 55
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={12} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- Compare fan-out on write, fan-out on read, and hybrid approaches
+- Choose between a pull model and a push model and justify it
+- Design a ranking layer that can be changed without a redeploy
+- Handle the "celebrity" case where fan-out explodes
 
-## The Concept
+## Why it matters
 
-To be written.
+The feed is the canonical trade-off between write cost and read latency, and it forces you to reason about a data distribution that is extremely skewed.
 
-## Example
+## Prerequisites
+
+- [Caching](../../building-blocks/caching/introduction) — a feed is a cache of a ranking function
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | Fan-Out Models | push, pull, and hybrid, with their cost profiles | Planned |
+| 02 | The Celebrity Problem | when one post has a million followers | Planned |
+| 03 | Ranking | candidate generation, scoring, and where the logic lives | Planned |
+| 04 | Storage and Pagination | cursor pagination over a changing timeline | Planned |
+
+## A worked example
 
 ```text
-Coming in the content phase.
+Fan-out on write (push):
+  post → write to every follower's feed list
+  + read is a single list read: fast, ~O(1) latency
+  - write cost is O(followers) — one post from a celebrity is huge
+  - feed lists go stale the moment a follow changes
+
+Fan-out on read (pull):
+  read → fetch followees' recent posts, merge and rank
+  + write is always O(1)
+  - read is slow and gets slower with more followees
+  - the classic "followed 5000 people" problem
+
+Hybrid:
+  push for normal accounts, pull for high-follower accounts
+  at read time, merge the two
+
+Ranking:
+  candidates (recent posts from followees) → score → top N
+  Keep scoring in a separate service so it can change daily
+  without a feed-service deploy.
 ```
 
-## Quick Recap
+Most real feeds are hybrid, and the reason is the follower distribution, not the average case.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**A celebrity with 10 million followers posts an update. How do you avoid writing 10 million feed entries?**
 
-## Further Reading
+Do not push to their followers. Mark the account as high-follower, and at read time fetch that account’s posts separately and merge them into the ranked result. The general version of this is the hybrid model: push for most accounts, pull for the tail, and merge at read. The cost moves from write time to read time, and it only affects the small number of people who follow a celebrity.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- Push is fast to read and expensive to write; pull is the reverse.
+- The follower distribution decides the model, not the average case.
+- Use cursor pagination — offsets break on a changing feed.

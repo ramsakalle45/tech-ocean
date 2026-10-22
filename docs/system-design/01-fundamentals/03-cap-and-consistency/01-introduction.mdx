@@ -1,34 +1,76 @@
 ---
-title: Introduction
-sidebar_label: Introduction
-description: Cap and Consistency — System Design module introduction.
-tags: [system-design, basic]
-difficulty: basic
-reading_time: 10
-prerequisites: []
+title: CAP and Consistency
+sidebar_label: CAP and Consistency
+description: What you give up when a part of your system is unavailable.
+tags: [system-design, intermediate]
+difficulty: intermediate
+reading_time: 45
 ---
 
-> **Draft.** This topic is scaffolded but not written yet. See
-> [CONTRIBUTING](/docs/contributing) to claim it.
+import Callout from '@site/src/components/Callout';
+import ChapterHeader from '@site/src/components/ChapterHeader';
+import DraftNotice from '@site/src/components/DraftNotice';
+
+<ChapterHeader number={3} eyebrow="System Design" />
+
+<DraftNotice>This module is mapped but not yet written. The roadmap below is the
+plan — pick a topic and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
-- To be written.
+- State the CAP theorem accurately, including what it does not say
+- Choose a consistency model per operation, not per system
+- Explain eventual consistency and the guarantees you can offer around it
+- Use idempotency and compensation to make retries safe
 
-## The Concept
+## Why it matters
 
-To be written.
+Every distributed system makes a consistency trade-off, usually without saying so. Being able to name the trade-off and the user-visible consequence is what makes a design defensible.
 
-## Example
+## Prerequisites
 
-```text
-Coming in the content phase.
+- [Latency and Throughput](../latency-and-throughput/introduction) — partitions are a fact of life in distributed systems
+
+## The roadmap
+
+| # | Topic | What it covers | Status |
+|---|-------|----------------|--------|
+| 01 | CAP, Precisely | what the theorem does and does not claim | Planned |
+| 02 | Consistency Models | strong, eventual, read-your-writes, and causal | Planned |
+| 03 | Consensus | what Raft and Paxos actually agree on | Planned |
+| 04 | Idempotency and Compensation | making retries and failures safe | Planned |
+
+## A worked example
+
+```python
+class PaymentService:
+    """Idempotent so the client can retry without double-charging."""
+
+    def charge(self, *, account_id: str, amount_cents: int,
+               idempotency_key: str) -> Result:
+        existing = self.store.get_by_key(idempotency_key)
+        if existing is not None:
+            return existing            # same answer, no second charge
+
+        result = self.gateway.charge(account_id, amount_cents)
+        self.store.put(idempotency_key, result)
+        return result
+
+    def refund(self, *, account_id: str, amount_cents: int) -> Result:
+        """Compensating action: a refund, not an undo of the charge."""
+        return self.gateway.refund(account_id, amount_cents)
 ```
 
-## Quick Recap
+You cannot un-charge a card. You issue a compensating transaction, and the saga around it must be designed for partial failure.
 
-- To be written.
+<Callout type="interview" title="Interview corner">
+**CAP says you must choose between consistency and availability during a partition. Which do you choose?**
 
-## Further Reading
+It depends on the operation, which is why the useful answer is per-operation. For a payment, you would rather refuse the write than let two nodes both accept it. For a product catalogue, you would rather serve a slightly stale price than return an error. The honest framing is: during a partition you get either consistency or availability, and the design question is which failure you can tolerate for each operation.
+</Callout>
 
-- To be written.
+## Quick recap
+
+- CAP is about partitions, not about choosing in general.
+- Choose a consistency model per operation.
+- Make writes idempotent and design compensation for partial failure.
