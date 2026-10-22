@@ -9,6 +9,18 @@ const config: Config = {
   tagline: 'Python, SQL, GenAI and System Design — from basics to advanced',
   favicon: 'img/favicon.ico',
 
+  // Algolia domain ownership proof, required by the DocSearch program.
+  // It has to be present in the <head> of the site, so it goes on every page.
+  headTags: [
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'algolia-site-verification',
+        content: 'A1C9AE85559D9BCD',
+      },
+    },
+  ],
+
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
     v4: true, // Stay compatible with the upcoming Docusaurus v4
