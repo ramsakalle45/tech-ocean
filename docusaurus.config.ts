@@ -14,12 +14,16 @@ const config: Config = {
     v4: true, // Stay compatible with the upcoming Docusaurus v4
   },
 
-  // Production URL. Change after wiring up Vercel/Netlify.
-  url: 'https://rams-dev-ocean.vercel.app',
+  // Production URL. Vercel exports VERCEL_URL for every deployment, so the
+  // canonical URL and the sitemap always match the host that was built.
+  // Everywhere else, fall back to the production domain.
+  url: process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : 'https://rams-dev-ocean.vercel.app',
   baseUrl: '/',
 
-  organizationName: 'ramsakalle',
-  projectName: 'rams-dev-ocean',
+  organizationName: 'ramsakalle45',
+  projectName: 'tech-ocean',
 
   // Fail the build instead of shipping dead internal links.
   onBrokenLinks: 'throw',
@@ -41,7 +45,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/ramsakalle/rams-dev-ocean/tree/main/',
+          editUrl: 'https://github.com/ramsakalle45/tech-ocean/tree/main/',
         },
         // Content lives in docs/ only; there is no blog.
         blog: false,
@@ -81,7 +85,7 @@ const config: Config = {
           label: 'Read',
         },
         {
-          href: 'https://github.com/ramsakalle/rams-dev-ocean',
+          href: 'https://github.com/ramsakalle45/tech-ocean',
           label: 'GitHub',
           position: 'right',
         },
@@ -106,7 +110,7 @@ const config: Config = {
             {label: 'Contributing', to: '/docs/contributing'},
             {
               label: 'GitHub',
-              href: 'https://github.com/ramsakalle/rams-dev-ocean',
+              href: 'https://github.com/ramsakalle45/tech-ocean',
             },
           ],
         },
