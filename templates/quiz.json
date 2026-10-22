@@ -1,0 +1,51 @@
+{
+  "title": "<Module title>",
+  "passMark": 70,
+  "questions": [
+    {
+      "id": "<subject>-<module>-1",
+      "type": "mcq",
+      "question": "<The question, asked plainly.>",
+      "options": [
+        "<Wrong answer>",
+        "<Right answer>",
+        "<Wrong answer>",
+        "<Wrong answer>"
+      ],
+      "answer": 1,
+      "explanation": "<Why the right answer is right, and why the tempting wrong one is wrong.>",
+      "topicRef": "<01-topic-file-name>"
+    },
+    {
+      "id": "<subject>-<module>-2",
+      "type": "multi",
+      "question": "<A question with more than one correct answer.>",
+      "options": ["<Option>", "<Option>", "<Option>", "<Option>"],
+      "answer": [0, 2],
+      "explanation": "<Why these two, and why not the others.>"
+    },
+    {
+      "id": "<subject>-<module>-3",
+      "type": "truefalse",
+      "question": "<A statement that is either true or false.>",
+      "answer": false,
+      "explanation": "<Why it is false, or true.>"
+    },
+    {
+      "id": "<subject>-<module>-4",
+      "type": "code-output",
+      "question": "What does this print?",
+      "code": "<the code to run>",
+      "answer": "<the exact output>",
+      "explanation": "<Why, line by line.>"
+    },
+    {
+      "id": "<subject>-<module>-5",
+      "type": "sql-fill",
+      "question": "<Complete the query.>",
+      "template": "SELECT ___ FROM <table>",
+      "answer": "<the missing part>",
+      "explanation": "<Why that is the answer.>"
+    }
+  ]
+}
