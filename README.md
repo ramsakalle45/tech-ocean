@@ -14,14 +14,14 @@ assessment at the end of every module.
 | Layer    | Choice                                              |
 | -------- | --------------------------------------------------- |
 | Framework| Docusaurus 3.10.2 (React, MDX, TypeScript strict)    |
-| Styling  | Hand-written CSS (`src/css/book-theme.css`)         |
+| Styling  | Hand-written CSS — six layers in `src/css/theme/`    |
 | Fonts    | Self-hosted via `@fontsource` (no external requests) |
 | Search   | `@easyops-cn/docusaurus-search-local` (no Algolia)   |
 | Hosting  | Static output — Vercel, Netlify or Cloudflare Pages  |
 
 ## Local development
 
-Requires Node 20 or newer (see `.nvmrc`).
+Requires Node 24 or newer (see `.nvmrc`).
 
 ```bash
 npm install
@@ -39,6 +39,10 @@ npm run typecheck  # tsc, strict mode
 `npm run build` fails on broken internal links, so run it before opening a pull
 request.
 
+Search is built by the production build, so the search box is empty in
+`npm run start`. To exercise it locally, run `npm run build && npm run serve`
+and open the printed URL.
+
 ## Repository layout
 
 ```
@@ -49,11 +53,10 @@ src/
   css/theme/          tokens · typography · page · components · responsive · motion
   pages/index.tsx     the book cover
   theme/Root.tsx      page turn, and the navigation fade
+  theme/prismBook.ts  syntax highlighting for both colour themes
   utils/roman.ts      Roman numerals for chapter numbers
 static/               favicon, social card
-examples/             runnable code mirroring docs/
-templates/            copy these to start new content
-scripts/              scaffolding and validation
+BLUEPRINT.md          the design brief this site is built from
 ```
 
 Ordering is controlled by two-digit prefixes (`01-`, `02-`). Docusaurus strips
@@ -69,7 +72,7 @@ is served at `/docs/python/basics/syntax-and-variables/`.
 | Topics | Not yet written; every module page lists the topics it will contain |
 | Quizzes | Not yet built — the assessment engine is the next phase |
 | Theme | Book layout, four responsive tiers, dark mode, page-turn motion — done |
-| Search | Local search, 71 pages indexed — done |
+| Search | Local search, 71 pages indexed — available in the production build |
 
 Pages marked *Draft* are deliberate: the roadmap stays honest, and each one is
 a claim on a topic somebody can write.
