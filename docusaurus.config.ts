@@ -1,6 +1,6 @@
-import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import {bookDark, bookLight} from './src/theme/prismBook';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -114,9 +114,10 @@ const config: Config = {
       copyright: `Code MIT · Content CC BY-SA 4.0 · © ${new Date().getFullYear()} Ram's Dev Ocean`,
     },
     prism: {
-      // Replaced with a typewriter-toned pair in Phase 2.
-      theme: prismThemes.github,
-      darkTheme: prismThemes.dracula,
+      // Custom themes in the book's palette — the stock ones fail AA here.
+      theme: bookLight,
+      darkTheme: bookDark,
+      additionalLanguages: ['bash', 'sql', 'python', 'json', 'yaml', 'diff'],
     },
   } satisfies Preset.ThemeConfig,
 

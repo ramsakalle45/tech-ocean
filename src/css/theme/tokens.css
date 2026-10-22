@@ -23,6 +23,7 @@
   --ink-soft: #5a4a3a; /* secondary text — 8:1 on paper */
   --accent: #8b2f1f; /* faded red — 7:1 on paper */
   --gold: #b08d3c; /* ornaments and rules only — 2.6:1, never text */
+  --gold-ink: #7d5f18; /* gold for small text — 5:1 on paper */
   --rule: #cdbb94;
   --plate: #fbf6e8; /* image plates and code */
   --plate-ink: #3a2d20;
@@ -88,6 +89,7 @@
   --ink-soft: #b9a98a;
   --accent: #d4694f;
   --gold: #d1a954;
+  --gold-ink: #d1a954; /* 7.9:1 on the candlelight paper */
   --rule: #3d3022;
   --plate: #241c15;
   --plate-ink: #e8dcc2;
@@ -97,6 +99,9 @@
     0 18px 45px -12px rgb(0 0 0 / 0.6);
 
   --ifm-background-color: var(--desk);
-  --ifm-color-primary: var(--accent);
+  --ifm-color-primary: #e28a6b;
+  --ifm-color-primary-dark: #d97a58;
+  --ifm-color-primary-darker: #cf6e4b;
+  --ifm-color-primary-darkest: #b85c3b;
   --ifm-font-color-base: var(--ink);
 }
