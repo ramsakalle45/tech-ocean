@@ -6,6 +6,28 @@
  */
 
 /* ============================================================
+   Search — the local search plugin, dressed in the book's colours
+   ============================================================ */
+
+/* The plugin ships cool-grey defaults that ignore the palette: a #f5f6f7
+   panel and #fff result cards. It exposes variables for every one of them,
+   so the fix is a binding rather than a fork.
+
+   These live on :root because the tokens they point at are redefined per
+   theme — one block covers daylight and candlelight. */
+:root {
+  --search-local-modal-background: var(--paper);
+  --search-local-modal-shadow: var(--lift-2);
+  --search-local-hit-background: color-mix(in srgb, var(--paper) 94%, var(--ink) 6%);
+  --search-local-hit-color: var(--ink);
+  --search-local-hit-shadow: inset 0 0 0 1px var(--rule);
+  --search-local-muted-color: var(--ink-soft);
+  --search-local-highlight-color: var(--accent);
+  --search-local-hit-active-color: var(--paper);
+  --search-local-input-active-border-color: var(--accent);
+}
+
+/* ============================================================
    Callout — a marginal note in the book
    ============================================================ */
 .callout {

@@ -71,6 +71,10 @@
   --ifm-color-primary: var(--accent);
   --ifm-navbar-height: 3.5rem;
   --ifm-navbar-padding-horizontal: 1rem;
+  /* The mobile drawer reads this variable, not the .navbar rule below.
+     Left at Infima's default it renders white in daylight and cool grey
+     by candlelight — off-palette, and near-unreadable in the dark theme. */
+  --ifm-navbar-background-color: var(--paper);
   --ifm-link-color: var(--accent);
   --ifm-toc-border-color: var(--rule);
   --ifm-toc-width: 15rem;
@@ -104,4 +108,5 @@
   --ifm-color-primary-darker: #cf6e4b;
   --ifm-color-primary-darkest: #b85c3b;
   --ifm-font-color-base: var(--ink);
+  --ifm-navbar-background-color: var(--paper);
 }
