@@ -10,11 +10,13 @@ reading_time: 60
 import Callout from '@site/src/components/Callout';
 import ChapterHeader from '@site/src/components/ChapterHeader';
 import DraftNotice from '@site/src/components/DraftNotice';
+import ProgressBadge from '@site/src/components/ProgressBadge';
 
 <ChapterHeader number={6} eyebrow="Python" />
 
-<DraftNotice>This module is mapped but not yet written. The roadmap below is the
-plan — pick a topic and write it, then open a pull request.</DraftNotice>
+<DraftNotice>Three of the four topics below are still to be written. The first
+one — [Decorators](./decorators) — is done; the rest are claims on work
+nobody has done yet. Pick one and write it, then open a pull request.</DraftNotice>
 
 ## What you will learn
 
@@ -35,10 +37,17 @@ Decorators are how Python adds behaviour without editing the original code — t
 
 | # | Topic | What it covers | Status |
 |---|-------|----------------|--------|
-| 01 | Decorators | the mechanics, `functools.wraps`, and decorator arguments | Planned |
+| 01 | [Decorators](./decorators) | the mechanics, `functools.wraps`, and decorator arguments | Written |
 | 02 | Closures | late binding, and the loop-variable trap | Planned |
 | 03 | Generators | `yield`, `send`, `throw`, and `yield from` | Planned |
 | 04 | Iterators and Lazy Evaluation | the iterator protocol and where it shows up | Planned |
+
+## Assessment
+
+Six questions on decorators. Passing marks this module complete — in this
+browser, and nowhere else.
+
+[Take the assessment](./assessment) · <ProgressBadge moduleId="python/intermediate/decorators-and-generators" />
 
 ## A worked example
 

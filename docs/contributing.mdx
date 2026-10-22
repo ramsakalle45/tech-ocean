@@ -16,15 +16,17 @@ it.
 
 1. Fork the repository and create a branch.
 2. Add or edit a file inside `docs/`.
-3. Open a pull request describing what changed and why.
+3. Run `npm run build` and `npm run validate:quizzes`.
+4. Open a pull request describing what changed and why.
 
 You do **not** need to know React to contribute content. A topic is a
 Markdown file with a small block of metadata at the top.
 
 ## Adding a topic
 
-Topics live at `docs/<subject>/<level>/<module>/<NN-topic>.mdx`. Copy an
-existing topic in the same module and change the content.
+Topics live at `docs/<subject>/<level>/<module>/<NN-topic>.mdx`. Copy
+`templates/topic.mdx` from the repository root and fill it in — it has the
+structure, the metadata block and the callouts the book uses.
 
 Rules:
 
@@ -33,6 +35,29 @@ Rules:
 - Never go deeper than `subject / level / module / topic`.
 - Every code example must run as written.
 - Do not copy text from another site. Explain it in your own words.
+
+## Writing a module's assessment
+
+Every module ends with a short assessment. The questions live in a
+`quiz.json` next to an assessment page, and both are built from the
+templates in the repository root.
+
+Five question types are supported:
+
+| Type | Answer | Looks like |
+|---|---|---|
+| `mcq` | one option index | pick one |
+| `multi` | several option indices | pick any number |
+| `truefalse` | `true` or `false` | true or false |
+| `code-output` | the exact output | type it in |
+| `sql-fill` | the missing part of a query | fill the blank |
+
+Every question needs an `explanation` — the reader sees it as soon as they
+answer, so explain *why*, not *what*. `topicRef` points at a topic file in
+the same folder; the reader gets a link back to it when they get it wrong.
+
+The validator runs in CI, so a malformed quiz fails the build rather than a
+reader.
 
 ## Style
 
@@ -64,4 +89,5 @@ npm run start
 ```
 
 The site builds with `npm run build`. A broken internal link fails the build,
-so run it before opening a pull request.
+so run it before opening a pull request. `npm run validate:quizzes` checks
+every assessment against the schema.

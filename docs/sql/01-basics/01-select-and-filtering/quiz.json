@@ -1,0 +1,74 @@
+{
+  "title": "Select and Filtering",
+  "passMark": 70,
+  "questions": [
+    {
+      "id": "sql-select-1",
+      "type": "mcq",
+      "question": "In which order does a simple SELECT statement actually evaluate its clauses?",
+      "options": [
+        "SELECT → FROM → WHERE → ORDER BY",
+        "FROM → WHERE → SELECT → ORDER BY",
+        "WHERE → FROM → SELECT → ORDER BY",
+        "FROM → SELECT → WHERE → ORDER BY"
+      ],
+      "answer": 1,
+      "explanation": "You read the query left to right, but the database runs it in a different order: it reads the tables (FROM), keeps the rows that match (WHERE), computes the selected columns (SELECT), then sorts the result (ORDER BY).",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sql-select-2",
+      "type": "mcq",
+      "question": "What does `WHERE status = NULL` return for a row whose status is NULL?",
+      "options": [
+        "The row, because the values look the same",
+        "No rows, because NULL is not equal to anything, including NULL",
+        "Every row with a NULL status",
+        "An error — NULL cannot be compared"
+      ],
+      "answer": 1,
+      "explanation": "NULL means 'unknown', and SQL's comparison rules make any comparison with NULL unknown rather than true. Use `IS NULL` and `IS NOT NULL` instead.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sql-select-3",
+      "type": "multi",
+      "question": "Which predicates are true for a row where `deleted_at` is NULL? Select all that apply.",
+      "options": [
+        "deleted_at IS NULL",
+        "deleted_at IS NOT NULL",
+        "deleted_at = NULL",
+        "COALESCE(deleted_at, '') = ''"
+      ],
+      "answer": [0, 3],
+      "explanation": "IS NULL is the only way to test for nullity, and IS NOT NULL is false for a null row. COALESCE substitutes a value first, so the comparison becomes a real one and is true.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sql-select-4",
+      "type": "truefalse",
+      "question": "WHERE filters rows; HAVING filters the groups produced by GROUP BY.",
+      "answer": true,
+      "explanation": "True. WHERE runs before grouping and works on individual rows; HAVING runs after grouping and works on each group, typically on aggregates such as COUNT(*).",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sql-select-5",
+      "type": "sql-fill",
+      "question": "Complete the query so it returns every column of every row in the table `users`.",
+      "template": "SELECT ___ FROM users",
+      "answer": "*",
+      "explanation": "The asterisk selects every column. It is convenient, but naming the columns explicitly is better practice — it survives a table gaining a new column, and it makes the intent readable.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sql-select-6",
+      "type": "code-output",
+      "question": "A table `orders` has 12 rows. How many rows does this query return?",
+      "code": "SELECT * FROM orders WHERE total > 100;",
+      "answer": "It depends on the data",
+      "explanation": "The row count depends on how many of the 12 orders have a total above 100. The query returns those rows and nothing else — there is no way to answer without the data.",
+      "topicRef": "01-introduction"
+    }
+  ]
+}

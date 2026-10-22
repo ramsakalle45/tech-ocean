@@ -1,0 +1,79 @@
+{
+  "title": "Scalability",
+  "passMark": 70,
+  "questions": [
+    {
+      "id": "sd-scale-1",
+      "type": "mcq",
+      "question": "What is the main ceiling on vertical scaling?",
+      "options": [
+        "It costs more per unit of capacity than horizontal scaling",
+        "There is a largest machine you can buy, and no more",
+        "It cannot be used with a load balancer",
+        "It requires rewriting the application"
+      ],
+      "answer": 1,
+      "explanation": "Vertical scaling means a bigger machine, and there is a largest one available. Once you reach it, the only way up is more machines — which is why most systems need horizontal scaling eventually.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sd-scale-2",
+      "type": "mcq",
+      "question": "Why does keeping a service stateless make horizontal scaling possible?",
+      "options": [
+        "Stateless services are always faster",
+        "Any instance can serve any request, so the load balancer can spread them freely and instances can be replaced on failure",
+        "Stateless services need no database",
+        "It reduces the number of network hops"
+      ],
+      "answer": 1,
+      "explanation": "If a request's outcome does not depend on which instance handled it, any instance can serve any request. That is what lets you add, remove and replace instances freely — and it is the precondition for auto-scaling.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sd-scale-3",
+      "type": "multi",
+      "question": "Which of these are examples of adding capacity horizontally? Select all that apply.",
+      "options": [
+        "Running ten application instances behind a load balancer",
+        "Moving a bigger database to a larger machine",
+        "Adding read replicas and routing reads to them",
+        "Adding more workers to a queue that the same service consumes"
+      ],
+      "answer": [0, 2, 3],
+      "explanation": "More instances, more read replicas and more workers all add capacity by adding machines. A bigger database is vertical scaling — the same role, on a larger box.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sd-scale-4",
+      "type": "truefalse",
+      "question": "A queue in front of a slow downstream service is a way to absorb a traffic spike rather than lose it.",
+      "answer": true,
+      "explanation": "True. The queue absorbs the burst: work is accepted immediately and drained at the rate the downstream can handle. The cost is latency and a backlog that has to be worked off later.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sd-scale-5",
+      "type": "code-output",
+      "question": "Each request costs the service 50 ms of CPU. What is the maximum requests per second one core can serve if it is kept busy?",
+      "code": "# one core, 100% utilisation, 50 ms CPU per request",
+      "answer": "20",
+      "explanation": "One core-second of CPU per second means 1 / 0.05 = 20 requests per second. Real headroom is lower, because a core that is 100% busy has no room for bursts, GC or anything else.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "sd-scale-6",
+      "type": "mcq",
+      "question": "You have added ten application instances and latency has not improved. What is the most likely explanation?",
+      "options": [
+        "The instances are running an older version of the code",
+        "All ten instances share one bottleneck downstream, so the extra capacity is never used",
+        "The load balancer is round-robin rather than least-connections",
+        "Ten instances is too few to matter"
+      ],
+      "answer": 1,
+      "explanation": "The classic answer is a shared bottleneck: one database, one cache or one downstream dependency that every request still funnels through. Adding instances in front of it changes nothing, and the fix is to scale or shard that dependency, or cache it.",
+      "topicRef": "01-introduction"
+    }
+  ]
+}

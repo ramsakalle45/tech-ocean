@@ -1,0 +1,79 @@
+{
+  "title": "Chunking and Embeddings",
+  "passMark": 70,
+  "questions": [
+    {
+      "id": "genai-chunk-1",
+      "type": "mcq",
+      "question": "What is the main problem that semantic chunking tries to solve?",
+      "options": [
+        "It is faster than fixed-size chunking",
+        "It keeps related content together along meaning boundaries instead of cutting at an arbitrary character count",
+        "It removes the need for embeddings",
+        "It guarantees better ranking on every query"
+      ],
+      "answer": 1,
+      "explanation": "Fixed-size chunking cuts mid-sentence and can separate a question from its answer. Semantic chunking splits on meaning boundaries so a chunk is more likely to be coherent on its own — at the cost of slower, less predictable indexing.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "genai-chunk-2",
+      "type": "mcq",
+      "question": "What does an embedding represent?",
+      "options": [
+        "A summary of the text in natural language",
+        "A vector of numbers that places text with similar meaning close together",
+        "The keywords found in the text, in order",
+        "A compressed copy of the original text"
+      ],
+      "answer": 1,
+      "explanation": "An embedding maps text to a point in a high-dimensional space. Texts that mean similar things land near each other, which is what makes similarity search work.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "genai-chunk-3",
+      "type": "multi",
+      "question": "Which are reasons to store metadata alongside each chunk? Select all that apply.",
+      "options": [
+        "To filter retrieval by document, section or date before searching",
+        "To give the model a citation and a way to verify the answer",
+        "To make every chunk the same length",
+        "To allow hard filtering — for example, only searching one product line"
+      ],
+      "answer": [0, 1, 3],
+      "explanation": "Metadata turns a bag of vectors into a searchable library: it filters, it cites, and it scopes the search. It does not change the length of a chunk.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "genai-chunk-4",
+      "type": "truefalse",
+      "question": "The larger the chunk, the better the retrieval, because the model gets more context.",
+      "answer": false,
+      "explanation": "False. Large chunks dilute the embedding — the vector now describes several ideas at once — and push more irrelevant text into the prompt. There is a sweet spot, and it depends on the embedding model and the question set.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "genai-chunk-5",
+      "type": "code-output",
+      "question": "Two chunks have cosine similarity 0.92. What does that say about them?",
+      "code": "cosine_similarity(chunk_a, chunk_b)  # -> 0.92",
+      "answer": "Their embeddings point in nearly the same direction, so they are likely to be about similar things",
+      "explanation": "Cosine similarity measures the angle between two vectors. 1.0 means identical direction, 0 means unrelated. 0.92 is high, so the chunks are semantically close — but it is a ranking signal, not a guarantee of relevance.",
+      "topicRef": "01-introduction"
+    },
+    {
+      "id": "genai-chunk-6",
+      "type": "mcq",
+      "question": "A chunk of 2,000 characters is split so that the last 200 characters of one chunk are repeated at the start of the next. What is this for?",
+      "options": [
+        "To make the chunks compress better",
+        "To stop a sentence being cut in half and lost across the boundary",
+        "To reduce the number of chunks stored",
+        "To speed up the embedding call"
+      ],
+      "answer": 1,
+      "explanation": "That overlap is the usual fix for boundary loss: if a sentence straddles the cut, the overlap keeps enough of it inside both chunks that at least one of them can answer a question about it.",
+      "topicRef": "01-introduction"
+    }
+  ]
+}
