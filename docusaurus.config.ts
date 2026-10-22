@@ -31,7 +31,7 @@ const config: Config = {
   // Everywhere else, fall back to the production domain.
   url: process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
-    : 'https://rams-dev-ocean.vercel.app',
+    : 'https://ram-dev-ocean.vercel.app',
   baseUrl: '/',
 
   organizationName: 'ramsakalle45',
